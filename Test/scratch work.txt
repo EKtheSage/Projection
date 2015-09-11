@@ -1,0 +1,51 @@
+﻿'Dim x As New ExcelReference(2, 2)
+'x.SetValue("hi there")
+'Dim y As New ExcelReference(3, 4) - cell E4 (row 4, column 5)
+'XlCall.Excel(XlCall.xlcFormula, "=Today()", y)
+'XlCall.Excel(XlCall.xlcFormula, "=Sum(R[1]C[1]:R[2]C[2])", y) - relative referece, sum F5:G6
+'XlCall.Excel(XlCall.xlcFormula, "=Sum(R1C1:R2C2)", y) - absolute reference, sum A1:B2
+'XlCall.Excel(XlCall.xlcFormulaArray, "=ATA(R1C1:R3C3)", New ExcelReference(4, 5, 4, 5))
+
+
+'Currently this produces values as hard-coded numbers, not sure if people agree with it
+'Just like what we have on webtriangle, we only see numbers, but we trust the code behind
+'Then we have to be 100% sure our code works, how do we test it works?
+'Need to know where the range is located without having to select it first
+'Named-range can be the way to go
+
+'Dim selection As ExcelReference = CType(XlCall.Excel(XlCall.xlfSelection), ExcelReference) - convert the selected cells to ExcelReference
+'Dim selectVal As Object = selection.GetValue() - get the value of the ExcelReference
+'Dim result As Double(,)
+'result = ChainLadder.ATA(selectVal) - put the values inside ATA function
+'Dim sheet1 As ExcelReference = CType(XlCall.Excel(XlCall.xlSheetId, "Sheet1"), ExcelReference)
+'Dim target As ExcelReference = New ExcelReference(69, result.GetLength(0) + 68, 0, result.GetLength(1) - 1, sheet1.SheetId)
+'target.SetValue(result)
+
+'use GetLength to get number of elements in the row
+'use GetUpperBound to get the index of the last element
+
+'XlCall.Excel(XlCall.xlcFormulaArray, "=ATA(R2C6:R181C185)", New ExcelReference(183, 361, 5, 183))
+'C API to put an array formula in cells
+'In the project I am using 
+
+'ExcelReference is 0 based array.
+'vb.net array is 0 based also.
+'range.value is 1 based array.
+'Dim shtCount As ExcelReference = CType(XlCall.Excel(XlCall.xlSheetId, "Sheet2"), ExcelReference)
+'Dim selection As ExcelReference = CType(XlCall.Excel(XlCall.xlfSelection), ExcelReference)
+
+'UDF to track changes
+'Private oldValue As List(Of Object) = New List(Of Object)
+'Public Function Remember(val As Object) As Object
+'    oldValue.Add(val)
+'    Return val
+'End Function
+'Public Function getOldValue(index As Integer)
+'    Return oldValue(index)
+'End Function
+
+'another way to call the macros through ribbon.
+<group id='FactorSelection' label='Factor Selection'>
+    <button id='Button1' label='Show CTP' onAction='OnShowCTP' size='large' />
+    <button id='Button2' label='Delete CTP' onAction='OnDeleteCTp' size='large' />
+</group>

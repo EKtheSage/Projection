@@ -1,0 +1,67 @@
+<DnaLibrary Name="Test Add-In" RuntimeVersion="v4.0">
+  <ExternalLibrary Path="Test.dll" LoadFromBytes="true" Pack="true" />
+  
+  <!-- 
+       The RuntimeVersion attribute above allows two settings:
+       * RuntimeVersion="v2.0" - for .NET 2.0, 3.0 and 3.5
+       * RuntimeVersion="v4.0" - for .NET 4 and 4.5
+
+       Additional referenced assemblies can be specified by adding 'Reference' tags. 
+       These libraries will not be examined and registered with Excel as add-in libraries, 
+       but will be packed into the -packed.xll file and loaded at runtime as needed.
+       For example:
+       
+       <Reference Path="Another.Library.dll" Pack="true" />
+  
+       Excel-DNA also allows the xml for ribbon UI extensions to be specified in the .dna file.
+       See the main Excel-DNA site at http://excel-dna.net for downloads of the full distribution.
+  -->
+  <CustomUI>
+    <!-- Inside here is the exact RibbonX xml passed to Excel -->
+    <!-- This will only be loaded for Excel 2010 because of the namespace -->
+    <customUI xmlns='http://schemas.microsoft.com/office/2009/07/customui' loadImage='LoadImage'>
+      <ribbon>
+        <tabs>
+          <tab id='CustomTab' label='PROJECTION'>
+            <group id='PrepareGroup' label='Prepare Projection'>
+              <button id='getTriangleList' label='Get Triangle List' size='large'
+                      imageMso ='_1'
+                      onAction='RunTagMacro' tag='getInitialTriangleList' />
+              <button id='assignValueToControl' label='Get Data From SQL' size='large'
+                      imageMso ='_2'
+                      onAction='RunTagMacro' tag='getData' />
+              <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
+                      imageMso ='Piggy'
+                      onAction='RunTagMacro' tag='loadGUIBNRCountFormLogin' />
+              <button id='setupProjection' label='Setup Projection' size='large'
+                      imageMso ='_3'
+                      onAction='RunTagMacro' tag='setup' />
+            </group>
+            <group id='TriangleFormatGroup' label='Format Triangles'>
+              <button id='showAllTriangles' label='Show All Triangles' size='normal' 
+                      imageMso ='MagicEightBall'
+                      onAction='RunTagMacro' tag='showAllTriangles' />
+              <button id='showMonthlyTriangles' label='Show Monthly Triangles' size='normal' 
+                      imageMso ='MicrosoftVisualFoxPro'
+                      onAction='RunTagMacro' tag='showMonthlyTriangles' />
+              <button id='showQuarterlyTriangles' label='Show Quarterly Triangles' size='normal' 
+                      imageMso ='HappyFace'
+                      onAction='RunTagMacro' tag='showQuarterlyTriangles' />
+              <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
+                      imageMso ='HappyFace'
+                      onAction='RunTagMacro' tag='showDefaultTriangleView' />
+            </group>
+            <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>
+              <button id='finalizeATA' label='Initial ATA to Review Template' size='large' 
+                      imageMso ='HappyFace'
+                      onAction='RunTagMacro' tag='finalizeATA' />
+              <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='large' 
+                      imageMso ='HappyFace'
+                      onAction='RunTagMacro' tag='finalizeExpLoss' />
+            </group>
+          </tab>
+        </tabs>
+      </ribbon>
+    </customUI>
+  </CustomUI>
+</DnaLibrary>

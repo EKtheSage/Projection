@@ -1,0 +1,351 @@
+﻿Imports ExcelDna.Integration
+Imports ExcelDna.Integration.XlCall
+Imports System.Text.RegularExpressions
+Imports Microsoft.Office.Interop.Excel
+
+'One day could think about having one function to evaluate all different algorithms, the structures are really similar
+'Module means the class is static, only one instance is needed. Any functions inside will not need to have shared keyword
+Public Module ChainLadder
+    'ExcelReference + XlCall
+    'In a UDF, use XlCall(C API); in a macro, use COM interface(Office Interop)
+    'Calculate ATU, convert to %, to me it seems easier to understand.
+    'One-Dimension array are rows in Excel
+    'ATA Algorithms with number of points, populate the range of estimes
+    Enum ATAType
+        WeightedAverage = 1
+        SimpleAverage = 2
+        LeastSquare = 3
+        HighLow = 4
+        Seasonal = 5
+    End Enum
+
+    Public Function ultLoss(ByVal letter As String, ByVal projBase As String,
+                            ByVal curPaid As Double, ByVal percPaid As Double, ByVal ultPaid As Double,
+                            ByVal curInc As Double, ByVal percInc As Double, ByVal ultInc As Double,
+                            ByVal expLoss As Double, ByVal priorSel As Double) As Double
+        Dim bf, gb As Double
+        If projBase = "Incurred" Then
+            bf = curInc + (1 - percInc) * expLoss
+            gb = curInc + (1 - percInc) * bf
+        ElseIf projBase = "Paid" Then
+            bf = curPaid + (1 - percPaid) * expLoss
+            gb = curPaid + (1 - percPaid) * bf
+        End If
+
+        Select Case letter
+            Case "A"
+                ultLoss = Math.Round(ultPaid, 6)
+            Case "B"
+                ultLoss = Math.Round(ultInc, 6)
+            Case "C"
+                ultLoss = Math.Round((2 * ultInc + ultPaid) / 3, 6)
+            Case "D"
+                ultLoss = Math.Round((ultInc + 2 * ultPaid) / 3, 6)
+            Case "E"
+                ultLoss = Math.Round(bf, 6)
+            Case "F"
+                ultLoss = Math.Round(priorSel, 6)
+            Case "G"
+                ultLoss = Math.Round((ultPaid + ultInc) / 2, 6)
+            Case "H"
+                ultLoss = Math.Round(curInc, 6)
+            Case "I"
+                ultLoss = Math.Round((priorSel + ultPaid) / 2, 6)
+            Case "J"
+                ultLoss = Math.Round((priorSel + ultInc) / 2, 6)
+            Case "K"
+                ultLoss = Math.Round((priorSel + 2 * ultInc) / 2, 6)
+            Case "L"
+                ultLoss = Math.Round((priorSel + bf) / 2, 6)
+            Case "M"
+                ultLoss = Math.Round((priorSel + 2 * bf) / 3, 6)
+            Case "P"
+                ultLoss = Math.Round((2 * priorSel + bf) / 3, 6)
+            Case "Q"
+                ultLoss = Math.Round((3 * priorSel + bf) / 4, 6)
+            Case "S"
+                ultLoss = Math.Round(gb, 6)
+            Case "U"
+                ultLoss = Math.Round(expLoss, 6)
+            Case "V"
+                ultLoss = Math.Round((expLoss + bf) / 2, 6)
+            Case "W"
+                ultLoss = Math.Round((ultInc + bf) / 2, 6)
+            Case "X"
+                ultLoss = Math.Round((ultPaid + bf) / 2, 6)
+            Case "Y"
+                ultLoss = Math.Round((2 * priorSel + ultInc) / 3, 6)
+            Case "Z"
+                ultLoss = Math.Round((9 * ultInc + ultPaid) / 10, 6)
+        End Select
+
+        Return ultLoss
+    End Function
+
+    'Trend function based on monthly or quarterly file
+    Public Function getTrend(ByVal data() As Object, group As String) As Double(,)
+        Dim indicator As Integer
+        Dim out(,) As Double
+
+        If group = "Monthly" Then
+            indicator = 12
+        ElseIf group = "Quarterly" Then
+            indicator = 4
+        End If
+
+        out = New Double(data.GetUpperBound(0) - indicator, 0) {}
+        For i As Integer = 0 To out.GetUpperBound(0)
+            out(i, 0) = CType(data(i + indicator), Double) / CType(data(i), Double) - 1
+        Next
+        Return out
+    End Function
+    'Takes in a triangle range, convert it to array, then do ATA calculation
+    Public Function ATA(ByVal triangle(,) As Object) As Double(,)
+        'first need to create an ATA array, which has dimensions of the triangle -1
+        Dim out(triangle.GetUpperBound(0) - 1, triangle.GetUpperBound(1) - 1) As Double
+
+        For i As Integer = 0 To out.GetUpperBound(0)
+            For j As Integer = 0 To out.GetUpperBound(1) - i
+                out(i, j) = Math.Round(CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double), 4)
+            Next
+        Next
+        Return out
+    End Function
+
+    'Takes in an ATA range, convert it to ATU
+    Public Function ATU(ByVal ATA() As Object) As Double(,)
+        Dim out(ATA.GetUpperBound(0) + 1, 0) As Double
+        Dim out2(ATA.GetUpperBound(0) + 1, 0) As Double
+        out(out.GetUpperBound(0), 0) = 1
+        For i As Integer = out.GetUpperBound(0) To 1 Step -1
+            out(i - 1, 0) = Math.Round(out(i, 0) * CType(ATA(i - 1), Double), 4)
+        Next
+
+        'need to reverse the ATU...not good
+        For i As Integer = 0 To out.GetUpperBound(0)
+            out2(i, 0) = out(out.GetUpperBound(0) - i, 0)
+        Next
+        Return out2
+    End Function
+
+    'split string into type and numPt
+    Public Function parseAlgorithm(ByVal algorithm As String, ByVal index As Integer) As Integer
+        Dim stringList As Dictionary(Of Integer, String) = New Dictionary(Of Integer, String)
+        stringList.Add(1, Regex.Replace(algorithm, "[\d]", ""))
+        stringList.Add(2, Regex.Replace(algorithm, "[^\d]", ""))
+        Select Case index
+            Case 1
+                Select Case stringList.Item(index)
+                    Case "W"
+                        Return ATAType.WeightedAverage
+                    Case "A"
+                        Return ATAType.SimpleAverage
+                    Case "LS"
+                        Return ATAType.LeastSquare
+                    Case "H"
+                        Return ATAType.HighLow
+                    Case Else
+                        Return ATAType.Seasonal
+                End Select
+            Case Else
+                Return Convert.ToInt32(stringList.Item(index))
+        End Select
+    End Function
+
+    'this function returns an array of ATA factors for a specified algorithm and number of points
+    Public Function ATAAlg(ByVal algType As Integer, ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+
+        Select Case algType
+            Case ATAType.WeightedAverage
+                out = WtdAvg(numPt, triangle)
+            Case ATAType.SimpleAverage
+                out = SimAvg(numPt, triangle)
+            Case ATAType.LeastSquare
+                out = LstSqr(numPt, triangle)
+            Case ATAType.HighLow
+            Case ATAType.Seasonal
+            Case Else
+        End Select
+
+        Return out
+    End Function
+
+    'this function returns the ATA factor at specified algorithm, number of points, and age
+    Public Function AtaWhichAge(ByVal algorithm As String, ByVal age As Integer,
+                                ByVal triangle(,) As Object) As Double
+
+        Dim alg As String = Regex.Replace(algorithm, "[\d]", "")
+        Dim algType As Integer
+        Select Case alg
+            Case "W"
+                algType = ATAType.WeightedAverage
+            Case "A"
+                algType = ATAType.SimpleAverage
+            Case "LS"
+                algType = ATAType.LeastSquare
+            Case "H"
+                algType = ATAType.HighLow
+            Case "S"
+                algType = ATAType.Seasonal
+        End Select
+        Dim numPt As Integer = Integer.Parse(Regex.Replace(algorithm, "[^\d]", ""))
+
+        Return ATAAlg(algType, numPt, triangle)(age - 1)
+    End Function
+
+    Public Function WtdAvg(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+
+        'Create a 1-Dimension ATA array, length equal to number of columns in the triangle - 1
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+        Dim thisAge As Double
+        Dim nextAge As Double
+        Dim counter As Integer
+
+        For j As Integer = 0 To triangle.GetUpperBound(1) - 1
+            thisAge = 0
+            nextAge = 0
+
+            'let 0 = using all available points
+            If numPt = 0 Then
+                numPt = triangle.GetUpperBound(0) - j
+            End If
+
+            'if number of rows are less than specified points, use all available points
+            If triangle.GetUpperBound(0) - j < numPt Then
+                counter = numPt - (triangle.GetUpperBound(0) - j)
+            Else
+                counter = 0
+            End If
+
+            For i As Integer = triangle.GetUpperBound(0) - j - numPt + counter To triangle.GetUpperBound(0) - j - 1
+                thisAge = thisAge + CType(triangle(i, j), Double)
+                nextAge = nextAge + CType(triangle(i, j + 1), Double)
+            Next
+
+            If nextAge < thisAge Then
+                out(j) = 1
+            Else
+                out(j) = Math.Round(nextAge / thisAge, 4)
+            End If
+        Next
+        Return out
+
+    End Function
+
+    Public Function SimAvg(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+
+        Dim ATATri(triangle.GetUpperBound(0) - 1, triangle.GetUpperBound(1) - 1) As Double
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+        Dim ATASum As Double
+        Dim counter As Integer
+        ATATri = ATA(triangle)
+
+        For j As Integer = 0 To ATATri.GetUpperBound(1)
+            ATASum = 0
+            'let 0 = using all available points
+            If numPt = 0 Then
+                numPt = triangle.GetUpperBound(0) - j
+            End If
+
+            'if number of rows are less than specified points, use all available points
+            If triangle.GetUpperBound(0) - j < numPt Then
+                counter = numPt - (triangle.GetUpperBound(0) - j)
+            Else
+                counter = 0
+            End If
+
+            For i As Integer = ATATri.GetUpperBound(0) - j - numPt + 1 + counter To ATATri.GetUpperBound(0) - j
+                ATASum = ATASum + ATATri(i, j)
+            Next
+
+            If ATASum < (numPt - counter) Then
+                out(j) = 1
+            Else
+                out(j) = Math.Round(ATASum / (numPt - counter), 4)
+            End If
+        Next
+        Return out
+    End Function
+
+    Public Function LstSqr(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+        'y = b x + a
+        'b = (avg(xy) - avg(x)avg(y)) / (avg(x^2) - avg(x)^2)
+        'b = (n * sum(xy) - sum(x)*sum(y)) / (n*sum(xx) - sum(x)sum(x))
+        'a = avg(y) - b * avg(x)
+
+        Dim x As Double, y As Double, a As Double, b As Double
+        Dim xy As Double, xSqr As Double, nextAge As Double
+        Dim counter As Integer
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+
+        For j As Integer = 0 To triangle.GetUpperBound(1) - 1
+            a = 0
+            b = 0
+            x = 0
+            y = 0
+            xy = 0
+            xSqr = 0
+            nextAge = 0
+
+            If numPt = 0 Then
+                numPt = triangle.GetUpperBound(0) - j
+            End If
+
+            If triangle.GetUpperBound(0) - j < numPt Then
+                counter = numPt - (triangle.GetUpperBound(0) - j)
+            Else
+                counter = 0
+            End If
+
+            For i As Integer = triangle.GetUpperBound(0) - j - numPt + counter To triangle.GetUpperBound(0) - j - 1
+                x = x + CType(triangle(i, j), Double)
+                y = y + CType(triangle(i, j + 1), Double)
+                xy = xy + CType(triangle(i, j), Double) * CType(triangle(i, j + 1), Double)
+                xSqr = xSqr + CType(triangle(i, j), Double) ^ 2
+            Next
+            b = ((numPt - counter) * xy - x * y) / ((numPt - counter) * xSqr - x ^ 2)
+            a = (y / (numPt - counter)) - (b * (x / (numPt - counter)))
+            nextAge = b * CType(triangle(triangle.GetUpperBound(0) - j, j), Double) + a
+
+            'boundary condition - set factor to 1
+            If triangle.GetUpperBound(0) - j - 1 < 2 Then
+                out(j) = 1
+            ElseIf nextAge < CType(triangle(triangle.GetUpperBound(0) - j, j), Double)
+                out(j) = 1
+            Else
+                out(j) = Math.Round(nextAge / CType(triangle(triangle.GetUpperBound(0) - j, j), Double), 4)
+            End If
+        Next
+        Return out
+    End Function
+
+    Public Function HighLow(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+
+        Return out
+    End Function
+
+    Public Function seasonal(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
+        Dim out(triangle.GetUpperBound(1) - 1) As Double
+
+        Return out
+    End Function
+
+    Public Function completeRectangle(ByVal triangle(,) As Object, ByVal ataFactors() As Object) As Double(,)
+        Dim out(triangle.GetUpperBound(0), triangle.GetUpperBound(1)) As Double
+
+        For i As Integer = 0 To triangle.GetUpperBound(0)
+            For j As Integer = 0 To triangle.GetUpperBound(1)
+
+            Next
+        Next
+        Return out
+    End Function
+
+    Private Function ReferenceToRange(ByVal xlRef As ExcelReference) As Object
+        Dim strAddress As String = CType(Excel(XlCall.xlfReftext, xlRef, True), String)
+
+        ReferenceToRange = CType(ExcelDnaUtil.Application, Application).Range(strAddress)
+    End Function
+End Module
