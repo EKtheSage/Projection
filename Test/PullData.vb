@@ -1,5 +1,4 @@
 ﻿Imports Microsoft.Office.Interop.Excel
-Imports ExcelDna.Integration
 Imports ADODB
 Imports SAS
 Imports SASObjectManager
@@ -77,12 +76,16 @@ Public Module PullData
     End Function
 
     Public Sub getInitialTriangleList()
-        Dim oledbConn As OLEDBConnection = Application.ActiveWorkbook.Connections("spTriangleList").OLEDBConnection
-        oledbConn.Refresh()
-
         'refresh the two pivot tables in the worksheet, then reset them to show all rows
+        Dim triangleConn As OLEDBConnection = Application.ActiveWorkbook.Connections("spTriangleList").OLEDBConnection
+
+        Dim bgQuery As Boolean = triangleConn.BackgroundQuery
+
+        triangleConn.BackgroundQuery = False
+        triangleConn.Refresh()
+        triangleConn.BackgroundQuery = bgQuery
+
         For Each pvtTbl As PivotTable In CType(wkstControl.PivotTables, PivotTables)
-            pvtTbl.RefreshTable()
             pvtTbl.ClearAllFilters()
         Next
 
@@ -90,7 +93,8 @@ Public Module PullData
 
     Public Sub getData()
         assignValueToControlSheet()
-        getTrianglesFromSqlSvr()
+        getEPEE()
+        getClsdAvg()
     End Sub
     Public Sub assignValueToControlSheet()
         Dim ptData As PivotTable = CType(wkstControl.PivotTables("PT_TriangleList1"), PivotTable)
@@ -138,6 +142,7 @@ Public Module PullData
         projBase = CType(wkstControl.Range("proj_base").Value, String)
         evalGroup = CType(wkstControl.Range("eval_group").Value, String)
 
+        getTrianglesFromSqlSvr()
     End Sub
     Public Sub getTrianglesFromSqlSvr()
         'Chr(39) is the character values for single quote, Chr(32) is the character values for space
@@ -152,7 +157,6 @@ Public Module PullData
         Dim sqlString As String
         Dim oledbConn As OLEDBConnection
 
-        MsgBox(lobNum)
         'coverageNum is for EPEE query, where coverage field is numeric, not string
         cov = CType(addCovToList(), List(Of coverageList))
 
@@ -199,24 +203,57 @@ Public Module PullData
                     oledbConn = wkbkConn.OLEDBConnection
                     oledbConn.CommandText = sqlString
                     oledbConn.Refresh()
-                Case "EPEE"
-                    risk = Chr(39) & CType(wkstControl.Range("risk").Value, String) & Chr(39)
-                    sqlString = "SELECT A.Date, sum(A.EP) As EP, sum(A.EE) / 365 as EE " &
-                            "From EPEE As A " &
-                            "Where A.Risk_Seg =" & risk & " And A.Coverage =" &
-                            Convert.ToInt32(queryCov.ToList(0).ToString) & Chr(32) &
-                            "Group By A.Date " &
-                            "Order By A.Date"
-                    oledbConn = wkbkConn.OLEDBConnection
-                    oledbConn.CommandText = sqlString
-                    oledbConn.Refresh()
-                Case "Closed Avg Web Query"
-                    wkbkConn.Refresh()
-                Case Else
-                    oledbConn = wkbkConn.OLEDBConnection
-                    oledbConn.Refresh()
             End Select
         Next
+    End Sub
+
+    Public Sub getEPEE()
+        Dim state As String
+        Dim risk As String = ""
+        Dim sqlString As String
+        Dim oledbConn As OLEDBConnection
+        Dim coverage As String = CType(wkstControl.Range("coverage").Value, String)
+
+        Dim queryCov =
+            From a In cov
+            Where a.coverageName = coverage
+            Select a.coverageNum
+
+        Dim coverage2 As String = Convert.ToString(queryCov.ToList(0).ToString)
+
+        If coverage2 = "XMC" Then
+            coverage2 = "(036, 083)"
+        ElseIf coverage2 = "UMC" Then
+            coverage2 = "(005, 024, 073, 074)"
+        Else
+            coverage2 = "(" & coverage2 & ")"
+        End If
+
+        state = CType(wkstControl.Range("state").Value, String)
+
+        If state = "CW" Then
+            state = ""
+        ElseIf state.Substring(0, 1) = "x" Then 'xNY, x4, etc -> could prove to be annoying down the road
+            Dim state2 As String = state.Substring(1)
+            If IsNumeric(state2) Then
+                state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
+            Else
+                state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
+            End If
+        Else
+            state = " And A.state =" & Chr(39) & state & Chr(39)
+        End If
+
+        risk = Chr(39) & CType(wkstControl.Range("risk").Value, String) & Chr(39)
+        sqlString = "SELECT A.Date, sum(A.EP) As EP, sum(A.EE) / 365 as EE " &
+                "From EPEE As A " &
+                "Where A.Risk_Seg =" & risk & state & " And A.Coverage IN" &
+                coverage2 & Chr(32) &
+                "Group By A.Date " &
+                "Order By A.Date"
+        oledbConn = Application.ActiveWorkbook.Connections("EPEE").OLEDBConnection
+        oledbConn.CommandText = sqlString
+        oledbConn.Refresh()
     End Sub
 
     Public Sub getClsdAvg()
@@ -297,7 +334,7 @@ Public Module PullData
         Dim adoConn As Connection = New Connection
         Dim adoRS As Recordset = New Recordset
         Dim user, coverage, pw, risk, state, sqlString As String
-        Dim tblIBNRCnt As ListObject = wkstIBNRCnt.ListObjects("tblIBNRCount")
+        Dim tblIBNRCnt As ListObject = wkstIBNRCnt.ListObjects("tbl_IBNRCount")
         Dim covName As String = CType(wkstControl.Range("coverage").Value, String)
 
         user = frmLogin.txtBxUser.Text
@@ -331,14 +368,25 @@ Public Module PullData
         Else
             state = "rtd_st_cd =" & Chr(39) & CType(wkstControl.Range("state").Value, String) & Chr(39) & " and "
         End If
+
         risk = "rsk_grp_cd =" & Chr(39) & CType(wkstControl.Range("risk").Value, String) & Chr(39) & " and "
-        coverage = "ATA_s160_cvrg_cd =" & Chr(39) & queryCov.ToList(0).ToString & Chr(39) & Chr(32)
+
+        Dim coverage2 As String
+
+        If queryCov.ToList(0).ToString = "UMC" Then
+            coverage2 = "('005', '024', '073', '074')"
+        ElseIf queryCov.ToList(0).ToString = "XMC" Then
+            coverage2 = "('036', '083')"
+        Else
+            coverage2 = "(" & Chr(39) & queryCov.ToList(0).ToString & Chr(39) & ")"
+        End If
+        coverage = "ATA_s160_cvrg_cd IN " & coverage2 & Chr(32)
         sqlString = "select (snp_dt+21916) as date, sum(IBNR_Cnts) as IBNRCnt from GU.CNTS_RESPREAD_FINAL_ST where " &
             state & risk & coverage &
             "Group by date " &
             "Order by date "
 
-        MsgBox(sqlString)
+        wkstIBNRCnt.Range("E1").Value = sqlString
 
         adoRS.Open(sqlString, adoConn)
 

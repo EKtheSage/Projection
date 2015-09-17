@@ -58,6 +58,9 @@
               <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='large' 
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='finalizeExpLoss' />
+            <button id='finalizeGraphs' label='Update the Graphs' size='large' 
+                      imageMso ='MicrosoftVisualFoxPro'
+                      onAction='RunTagMacro' tag='finalizeGraphs' />
             </group>
           </tab>
         </tabs>

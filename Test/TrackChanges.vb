@@ -36,9 +36,7 @@ Public Class TrackChanges
         If CType(sh, Worksheet).Name = "Control" Then
             Try
                 rngName = CType(target.Name, Name)
-                If rngName.Name = "reset" Then
-                    resetControl(CType(target.Value, String))
-                ElseIf rngName.Name = "eval_group" Then
+                If rngName.Name = "eval_group" Then
                     evalGroup = CType(target.Value, String)
                 ElseIf rngName.Name = "proj_base" Then
                     projBase = CType(target.Value, String)
@@ -89,42 +87,39 @@ Public Class TrackChanges
         Dim ATANamedRange As String
 
         If Application.Intersect(target, finalSel) Is Nothing And
-           Application.Intersect(target, Application.Range("D21")) Is Nothing And
-           Application.Intersect(target, Application.Range("D22")) Is Nothing And
-           Application.Intersect(target, Application.Range("D23")) Is Nothing And
-           Application.Intersect(target, Application.Range("F27")) Is Nothing Then
+           Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) Is Nothing And
+           Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) Is Nothing And
+           Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) Is Nothing And
+           Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) Is Nothing Then
             Exit Sub
         End If
 
+        'assigns the age cell to 1 or 3 first before changing the trend values below
         If evalGroup = "Monthly" Then
             lookup.Value = 1
+            ATANamedRange = projBase & "_sel_ATA"
         Else
             lookup.Value = 3
+            ATANamedRange = projBase & "_sel_ATA_qtrly"
         End If
 
-        If Application.Intersect(target, finalSel) IsNot Nothing Then
-            If evalGroup = "Monthly" Then
-                ATANamedRange = projBase & "_sel_ATA"
-            Else
-                ATANamedRange = projBase & "_sel_ATA_qtrly"
-            End If
+        If Application.Intersect(target, finalSel) IsNot Nothing And CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then
 
+            'add range's address to selAddress
             For i As Integer = 0 To finalSel.Rows.Count - 1
                 selAddress.Add(CType(finalSel.Item(finalSel.Rows.Count - i, 1), Range).Address, i)
             Next
-
             colIndex = selAddress.Item(target.Address)
-
             'get the cell based on the column index and the selected ATA named range.
             wkst.Range(ATANamedRange).Offset(-1, colIndex).Resize(1, 1).Value = target.Value
 
-        ElseIf Application.Intersect(target, Application.Range("D21")) IsNot Nothing Then 'sev trend
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) IsNot Nothing Then 'sev trend
             lookup.Offset(2, 0).Value = target.Value
-        ElseIf Application.Intersect(target, Application.Range("D22")) IsNot Nothing Then 'pp trend
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) IsNot Nothing Then 'pp trend
             lookup.Offset(5, 0).Value = target.Value
-        ElseIf Application.Intersect(target, Application.Range("D23")) IsNot Nothing Then 'lr trend
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) IsNot Nothing Then 'lr trend
             lookup.Offset(8, 0).Value = target.Value
-        ElseIf Application.Intersect(target, Application.Range("F27")) IsNot Nothing Then 'final exp loss
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) IsNot Nothing Then 'final exp loss
             lookup.Offset(10, 0).Value = target.Value
         End If
 
@@ -140,7 +135,10 @@ Public Class TrackChanges
         Dim row As Integer
         Dim counter As Integer
 
-        If Application.Intersect(target, wkstExpLoss.Range("P11")) Is Nothing Then Exit Sub
+        If Application.Intersect(target, wkstExpLoss.Range("P11")) Is Nothing And
+            Application.Intersect(target, lookup) Is Nothing Then
+            Exit Sub
+        End If
 
         If evalGroup = "Monthly" Then
             counter = 1
@@ -149,6 +147,11 @@ Public Class TrackChanges
             counter = 3
             age1 = wkst.Range(projBase & "_sel_ATA_qtrly").Resize(1, 1).Value
         End If
+
+        If Application.Intersect(target, lookup) IsNot Nothing Then
+            wkstExpLoss.Range("Pll").Value = CType(expLoss.Cells(rowNum - (CType(lookup.Value, Integer) / counter) + 1, 1), Range).Value
+        End If
+
         CType(expLoss.Cells(rowNum - (CType(lookup.Value, Integer) / counter) + 1, 1), Range).Value = target.Value
 
         row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
@@ -161,13 +164,6 @@ Public Class TrackChanges
         CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
             CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
 
-    End Sub
-    Private Sub resetControl(reset As String)
-        If reset = "Yes" Then
-            For Each pvtTbl As PivotTable In CType(wkstControl.PivotTables, PivotTables)
-                pvtTbl.ClearAllFilters()
-            Next
-        End If
     End Sub
 
     Private Sub resizeNamedRangeAndCreateValidation(rngName As String, selectedItm As String)

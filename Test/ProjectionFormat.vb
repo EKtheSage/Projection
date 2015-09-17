@@ -63,6 +63,8 @@ Public Module ProjectionFormat
         IC_lr = 23
         IC_sev = 24
         IC_pp = 26
+        preIC_res_spr = 28
+        preIC_res = 30
         preIC_sev = 39
         preIC_pp = 40
         preIC_lr = 41
@@ -70,34 +72,56 @@ Public Module ProjectionFormat
 
     Public Sub setup()
 
-        Dim wkst As Worksheet
-
         'turn off calculation until everything is setup
         Application.Calculation = XlCalculation.xlCalculationManual
-        For Each wkst In Application.ActiveWorkbook.Worksheets
-            If wkst.Name = "Incurred" Or wkst.Name = "Paid" Or wkst.Name = "Count" Then
-                monthToQuarter(wkst.Name)
-                makeTriangleSheets(wkst.Name)
-                MsgBox("Almost done updating " & wkst.Name & " triangle worksheet")
-            End If
-        Next
+
+        monthToQuarter("Count")
+        makeTriangleSheets("Count")
+
+        monthToQuarter("Paid")
+        makeTriangleSheets("Paid")
+
+        monthToQuarter("Incurred")
+        makeTriangleSheets("Incurred")
+
+        monthToQuarterAlt("Incurred")
+        monthToQuarterAlt("Paid")
+
         showDefaultTriangleView()
-        MsgBox("finished updating all triangle worksheets")
         expLoss()
-        MsgBox("finished updating exp loss worksheet")
         summary()
-        MsgBox("finished updating summary worksheet")
         reviewTemplate()
-        MsgBox("finished updating review template worksheet")
 
         'calculate all sheets, then turn calculation back to automatic
         Application.Calculate()
         Application.Calculation = XlCalculation.xlCalculationAutomatic
 
+        wkstExpLoss.Activate()
+        graphsUpdate("Exp Loss")
+        graphsUpdate("Review Template")
+
     End Sub
 
-    Public Sub monthToQuarter(shtName As String)
+    Public Sub monthToQuarterAlt(data As String)
+        Application.Calculation = XlCalculation.xlCalculationManual
+        Dim dataRng As String = "'Alt Data'!" & data & "_data_alt"
 
+        Dim sht2 As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, dataRng), ExcelReference)
+        Dim selectVal As Object(,) = CType(sht2.GetValue(), Object(,))
+        Dim qtrTri As Double(,) = quarterTriangle(selectVal)
+
+        dataRng = "'Alt Data'!" & data & "_qtrlydata_alt"
+        Dim target2 As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, dataRng), ExcelReference)
+        target2.SetValue(qtrTri)
+
+        'also assigns new formula to the ATA block - Alt data equals actual data if ATA selections are the same, no need to have if/else
+        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(data), Worksheet)
+        wkst.Range(data & "_ATA").FormulaArray = "=ATA(" & data & "_data_alt)"
+        wkst.Range(data & "_qtrlyATA").FormulaArray = "=ATA(" & data & "_qtrlydata_alt)"
+
+    End Sub
+    Public Sub monthToQuarter(shtName As String)
+        Application.Calculation = XlCalculation.xlCalculationManual
         Dim dataRng As String
         dataRng = shtName & "!" & shtName & "_data"
 
@@ -157,8 +181,8 @@ Public Module ProjectionFormat
         Dim wkst As Worksheet
         Dim month, quarter As Boolean
         Dim hideRows As Range
-        Dim accDateCol As Range
-        Dim fieldInfoArray() As Integer = New Integer() {1, XlColumnDataType.xlYMDFormat}
+        'Dim accDateCol As Range
+        'Dim fieldInfoArray() As Integer = New Integer() {1, XlColumnDataType.xlYMDFormat}
 
         Application.Calculation = XlCalculation.xlCalculationManual
 
@@ -173,14 +197,12 @@ Public Module ProjectionFormat
                     quarter = False
                     hideRows = Application.Union(CType(wkst.Rows("381:416"), Range), CType(wkst.Rows("443:477"), Range))
                 End If
-                CType(wkst.Columns("Z:FX"), Range).EntireColumn.Hidden = True
+                'CType(wkst.Columns("Z:FX"), Range).EntireColumn.Hidden = True
 
-                MsgBox("trying to convert date column from text to date...")
-                'change accident date column from text to date
-                accDateCol = wkst.Range(wkst.Name & "_data").Offset(0, -1).Resize(180, 1)
-                accDateCol.TextToColumns(Destination:=accDateCol, FieldInfo:=fieldInfoArray)
-                wkst.Activate()
-                MsgBox("does it work?")
+                'accDateCol = wkst.Range(wkst.Name & "_data").Offset(0, -1).Resize(180, 1)
+                'accDateCol.TextToColumns(Destination:=accDateCol, FieldInfo:=fieldInfoArray)
+                'wkst.Activate()
+                'MsgBox("does it work?")
 
 
                 CType(wkst.Rows("1:379"), Range).EntireRow.Hidden = month
@@ -203,9 +225,12 @@ Public Module ProjectionFormat
         Dim rowNum, counter As Integer
         Dim nameOfRange As Name
 
+        Application.Calculation = XlCalculation.xlCalculationManual
+
         rng = wkst.Range(shtName & "_Summary")
         nameOfRange = CType(rng.Name, Name)
         rng.ClearContents()
+        CType(rng.Columns(10), Range).Offset(0, 1).ClearContents()
 
         If evalGroup = "Monthly" Then
             dateRng = "=accident_date_mthly"
@@ -242,10 +267,10 @@ Public Module ProjectionFormat
 
         If shtName = "Count" Then
             CType(rng.Columns(10), Range).Formula = "=If($K521="""",$C521*(G521-$D521)+$D521,$K521+$C521)"
+            CType(rng.Columns(10), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
         Else
             CType(rng.Columns(10), Range).Formula = "=$C521*(G521-$D521)+$D521"
         End If
-
 
         With nameOfRange
             .Name = shtName & "_Summary"
@@ -254,6 +279,7 @@ Public Module ProjectionFormat
     End Sub
 
     Public Sub expLoss()
+        Application.ScreenUpdating = False
         Dim rng As Range
         Dim counter As Integer
         Dim tblSev As ListObject = wkstExpLoss.ListObjects("tbl_sev")
@@ -276,7 +302,55 @@ Public Module ProjectionFormat
         For c As Integer = 1 To counter
             CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = c
         Next
+        Application.ScreenUpdating = True
+    End Sub
 
+    Public Sub graphsUpdate(wkstName As String)
+        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet)
+        For Each chartObj As ChartObject In CType(wkst.ChartObjects, ChartObjects)
+            Dim sheetName As String = "Exp Loss"
+            Dim chartName As String = chartObj.Chart.Name.Substring(Len(sheetName) + 1)
+            Dim tbl As ListObject = wkstExpLoss.ListObjects("tbl_" & chartName)
+            Dim min, max, majorUnit As Double
+
+            min = Double.MaxValue
+            max = Double.MinValue
+
+            For Each c As Range In tbl.DataBodyRange.Offset(0, 1).Resize(, 5)
+                If CType(c.Value, Double) > 0 Then
+                    min = Math.Min(min, CType(c.Value, Double))
+                    max = Math.Max(max, CType(c.Value, Double))
+                End If
+            Next
+
+            If max > 1000 Then
+                max = RoundUp(max, 1000)
+                min = RoundUp(min, 1000) - 2000
+            ElseIf max < 1000 And max > 100 Then
+                max = RoundUp(max, 100)
+                min = RoundUp(min, 100) - 200
+            ElseIf max < 100 And max > 10 Then
+                max = RoundUp(max, 5)
+                min = RoundUp(min, 5) - 10
+            ElseIf max < 10 And max > 1 Then
+                max = Math.Round(max, 2)
+                min = Math.Round(min, 2) - 0.5
+            ElseIf max < 1 And max > 0 Then
+                max = Math.Round(max, 2)
+                min = Math.Round(min, 2) - 0.125
+            End If
+
+            If min < 0 Then
+                min = 0
+            End If
+            majorUnit = (max - min) / 10
+
+            With CType(chartObj.Chart.Axes(XlAxisType.xlValue), Axis)
+                .MaximumScale = max
+                .MinimumScale = min
+                .MajorUnit = majorUnit
+            End With
+        Next
     End Sub
     Public Sub summary()
         Dim rng As Range
@@ -327,13 +401,29 @@ Public Module ProjectionFormat
         CType(rng.Columns(11), Range).Formula = "=VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_curAmt,0)"
         CType(rng.Columns(12), Range).Formula = "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0)"
         CType(rng.Columns(13), Range).Formula = "=cur_incurred/percent_incurred"
-        CType(rng.Columns(14), Range).Value = 158100000
-        CType(rng.Columns(15), Range).Formula = "=ultLoss(""E"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
-        CType(rng.Columns(16), Range).Formula = "=ultLoss(""S"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
+
+        CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, ExpLoss,2,0)"
+        'remove age 1 exp loss formula
+        CType(rng.Columns(14), Range).End(XlDirection.xlDown).ClearContents()
+
+        CType(rng.Columns(15), Range).Formula =
+            "=ultLoss(""E"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
+        CType(rng.Columns(16), Range).Formula =
+            "=ultLoss(""S"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
 
         'letter selection column needs to be updated based on Paid/Incurred
-        CType(rng.Columns(17), Range).Formula = "E"
-        CType(rng.Columns(18), Range).Formula = "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
+        If projBase = "Paid" Then
+            CType(rng.Columns(17), Range).Formula = "=IF(percent_paid>0.935, ""A"", ""E"")"
+        Else
+            CType(rng.Columns(17), Range).Formula = "=IF(percent_incurred>0.935, ""B"", ""E"")"
+        End If
+
+        CType(rng.Columns(18), Range).Formula =
+            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,VLOOKUP(accident_date,ExpLoss,5,0))"
+        'age 1 exp loss doesn't use prior loss
+        CType(rng.Columns(18), Range).End(XlDirection.xlDown).Formula =
+            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
+
         CType(rng.Columns(19), Range).Formula = "=preIC_ultloss+volatility"
         'rng.Columns(20).Formula
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
@@ -341,8 +431,8 @@ Public Module ProjectionFormat
         CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep*1000"
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ult_counts*1000"
         CType(rng.Columns(26), Range).Formula = "=sel_ultloss/ee*1000"
-        'rng.Columns(28).Formula
-        'rng.Columns(29).Formula
+        CType(rng.Columns(28), Range).Formula = "=IF(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
+        CType(rng.Columns(29), Range).Formula = "=sel_volatility*preIC_res_spr"
         CType(rng.Columns(30), Range).Formula = "=preIC_ultloss-cur_paid"
         CType(rng.Columns(31), Range).Formula = "=cur_incurred-cur_paid"
         CType(rng.Columns(32), Range).Formula = "=sel_ultloss-cur_incurred"
@@ -375,24 +465,29 @@ Public Module ProjectionFormat
         'clear last time's track changes
         wkstReviewTemplate.Range("Y1:AD1").Offset(1, 0).Resize(rowCount - 1, 6).ClearContents()
 
-        wkstReviewTemplate.Range("reviewTemplate_selATA").ClearContents()
+        wkstReviewTemplate.Range("RT_selATA").ClearContents()
         If evalGroup = "Monthly" Then
-            wkstReviewTemplate.Range("reviewTemplate_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA,,$A10+1)"
-            wkstReviewTemplate.Range("reviewTemplate_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA,,$A10+1)"
+            wkstReviewTemplate.Range("RT_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA,,$A10+1)"
+            wkstReviewTemplate.Range("RT_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA,,$A10+1)"
         Else
-            wkstReviewTemplate.Range("reviewTemplate_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA_qtrly,,$A10+1)"
-            wkstReviewTemplate.Range("reviewTemplate_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA_qtrly,,$A10+1)"
+            wkstReviewTemplate.Range("RT_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA_qtrly,,$A10+1)"
+            wkstReviewTemplate.Range("RT_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA_qtrly,,$A10+1)"
         End If
 
         If projBase = "Paid" Then
+            'change paid ATU to prior first, get the reserves using prior sel
             CType(summary.Columns(9), Range).Formula =
                 "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("C16").Value = reserves
+
+            'change paid ATU to default ATU, get the reserves with default sel
             CType(summary.Columns(9), Range).Formula =
                 "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_defaultATU,0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
+
+            'finally change paid ATU to selected ATU
             CType(summary.Columns(9), Range).Formula =
                 "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0)"
         Else
@@ -415,52 +510,49 @@ Public Module ProjectionFormat
         Dim rng As Range
         Dim selATA As Object(,)
 
-        If wkst.Name IsNot "Paid" Or wkst.Name IsNot "Incurred" Then
-            Exit Sub
-        End If
-
-        If evalGroup = "Monthly" Then
-            rng = wkst.Range(wkst.Name & "_sel_ATA").Resize(1, 6)
-        Else
-            rng = wkst.Range(wkst.Name & "_sel_ATA_qtrly").Resize(1, 6)
-        End If
-
-        'this part just converts a row of cells into a column of cells
-        selATA = New Object(5, 0) {}
-
-        For i As Integer = 0 To rng.Columns.Count - 1
-            selATA(i, 0) = CType(rng.Cells(1, rng.Columns.Count - i), Range).Value
-        Next
-
-        'assigns the newly created column of cells to review template
         If wkst.Name = projBase Then
+            If evalGroup = "Monthly" Then
+                rng = wkst.Range(wkst.Name & "_sel_ATA").Resize(1, 6)
+            Else
+                rng = wkst.Range(wkst.Name & "_sel_ATA_qtrly").Resize(1, 6)
+            End If
+
+            'this part just converts a row of cells into a column of cells
+            selATA = New Object(5, 0) {}
+
+            For i As Integer = 0 To rng.Columns.Count - 1
+                selATA(i, 0) = CType(rng.Cells(1, rng.Columns.Count - i), Range).Value
+            Next
+
+            'assigns the newly created column of cells to review template
             CType(wkstReviewTemplate.Cells(9, 5), Range).Value = CType(wkstReviewTemplate.Cells(9, 6), Range).Value
             For i As Integer = 0 To 5
                 CType(wkstReviewTemplate.Cells(10 + i, 5), Range).Value = selATA(i, 0)
                 CType(wkstReviewTemplate.Cells(10 + i, 6), Range).Value = selATA(i, 0)
             Next
             CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
-
-        Else
+        ElseIf wkst.Name <> projBase And (wkst.Name = "Paid" Or wkst.Name = "Incurred") Then
             MsgBox("Your projection does not use " & wkst.Name & " ATA factors for estimating the reserves!")
+        Else
+            MsgBox("You are on the wrong tab!")
         End If
-
     End Sub
 
     Public Sub finalizeExpLoss()
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet)
         Dim counter As Integer
 
-        If wkst.Name IsNot "Exp Loss" Then
+        If wkst.Name <> "Exp Loss" Then
             Exit Sub
         End If
 
         If (CType(wkst.Range("lookup_age").Value, Integer) = 1 And evalGroup = "Monthly") Or
             (CType(wkst.Range("lookup_age").Value, Integer) = 3 And evalGroup = "Quarterly") Then
-            wkstReviewTemplate.Range("D21").Value = wkst.Range("P3").Value
-            wkstReviewTemplate.Range("D22").Value = wkst.Range("P6").Value
-            wkstReviewTemplate.Range("D23").Value = wkst.Range("P9").Value
+            wkstReviewTemplate.Range("RT_SevTrnd").Value = wkst.Range("P3").Value
+            wkstReviewTemplate.Range("RT_PPTrnd").Value = wkst.Range("P6").Value
+            wkstReviewTemplate.Range("RT_LRTrnd").Value = wkst.Range("P9").Value
             wkstReviewTemplate.Range("E27").Value = wkst.Range("P11").Value
+            wkstReviewTemplate.Range("RT_ExpLossAge1").Value = wkst.Range("P11").Value
             wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
         Else
             If evalGroup = "Monthly" Then
@@ -471,6 +563,11 @@ Public Module ProjectionFormat
             MsgBox("Can only bring Age " & counter & " expected loss to review template!")
             Exit Sub
         End If
+    End Sub
+
+    Public Sub finalizeGraphs()
+        graphsUpdate("Exp Loss")
+        graphsUpdate("Review Template")
     End Sub
 
     Public Function sumRange(ByVal rngToSum As Object(,)) As Double
@@ -509,6 +606,17 @@ Public Module ProjectionFormat
             Next
         Next
         Return out
+    End Function
+
+    'Round numbers up to the specified multiple
+    Private Function RoundUp(num As Double, multiple As Integer) As Integer
+
+        If (multiple = 0) Then
+            Return 0
+        End If
+        Dim add As Integer
+        add = CType(multiple / Math.Abs(multiple), Integer)
+        Return CType(((num + multiple - add) / multiple), Integer) * multiple
     End Function
 
 End Module
