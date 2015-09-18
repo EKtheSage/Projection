@@ -45,6 +45,7 @@ End Class
 
 Public Module Module1
     'Have a module that houses the macros for ribbons
+
     Sub Button2()
         MsgBox("Greetings from Button2!")
     End Sub

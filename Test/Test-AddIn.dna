@@ -37,7 +37,7 @@
                       imageMso ='_3'
                       onAction='RunTagMacro' tag='setup' />
             </group>
-            <group id='TriangleFormatGroup' label='Format Triangles'>
+            <group id='TemplateFormatGroup' label='Format Worksheets'>
               <button id='showAllTriangles' label='Show All Triangles' size='normal' 
                       imageMso ='MagicEightBall'
                       onAction='RunTagMacro' tag='showAllTriangles' />
@@ -50,6 +50,12 @@
               <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='showDefaultTriangleView' />
+              <button id='finalizeGraphs' label='Update the Graphs' size='large' 
+                      imageMso ='MicrosoftVisualFoxPro'
+                      onAction='RunTagMacro' tag='finalizeGraphs' />
+              <button id='finalizeQPage' label='Format QPage' size='large' 
+                      imageMso ='MicrosoftVisualFoxPro'
+                      onAction='RunTagMacro' tag='QPageFormat' />
             </group>
             <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>
               <button id='finalizeATA' label='Initial ATA to Review Template' size='large' 
@@ -58,10 +64,7 @@
               <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='large' 
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='finalizeExpLoss' />
-            <button id='finalizeGraphs' label='Update the Graphs' size='large' 
-                      imageMso ='MicrosoftVisualFoxPro'
-                      onAction='RunTagMacro' tag='finalizeGraphs' />
-            </group>
+            </group>          
           </tab>
         </tabs>
       </ribbon>

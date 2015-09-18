@@ -14,16 +14,11 @@ Public Class TrackChanges
     'to-do: route multiple SheetChange events to the same handler
     Public Sub AutoOpen() Implements IExcelAddIn.AutoOpen
         Application = CType(ExcelDnaUtil.Application, Application)
-        AddHandler Application.SheetChange, AddressOf ATASheetChange
+        AddHandler Application.SheetChange, AddressOf WorksheetChange
     End Sub
 
-    Private Sub ATASheetChange(sh As Object, target As Range)
+    Private Sub WorksheetChange(sh As Object, target As Range)
         Dim rngName As Name
-
-        If CType(sh, Worksheet).Name = projBase Then
-            'this will auto-update Age1 factor, EL, reserves to review template
-            worksheetTriangleChange(target)
-        End If
 
         If CType(sh, Worksheet).Name = "Exp Loss" Then
             worksheetExpLossChange(target)
@@ -47,33 +42,6 @@ Public Class TrackChanges
                 Exit Sub
             End Try
         End If
-    End Sub
-
-    Private Sub worksheetTriangleChange(target As Range)
-        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
-        Dim rng As Range
-        Dim row As Integer
-        Dim dt As Date = Now
-        row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
-
-        If evalGroup = "Monthly" Then
-            rng = wkst.Range(projBase & "_sel_ATA").Offset(-1, 0).Resize(1, 1)
-        Else
-            rng = wkst.Range(projBase & "_sel_ATA_qtrly").Offset(-1, 0).Resize(1, 1)
-        End If
-
-        If Application.Intersect(target, rng) Is Nothing Then
-            Exit Sub
-        End If
-
-        CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
-        CType(wkstReviewTemplate.Cells(row, 26), Range).Value = target.Offset(1, 0).Value
-        CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("$P$11").Value
-        CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
-            sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
-        CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
-        CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
-            CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
     End Sub
 
     Private Sub worksheetReviewTemplateChange(target As Range)
@@ -103,6 +71,7 @@ Public Class TrackChanges
             ATANamedRange = projBase & "_sel_ATA_qtrly"
         End If
 
+        'if target is in F10:F15 and active worksheet is Review Template - then change the ATA factors in Paid/Incurred
         If Application.Intersect(target, finalSel) IsNot Nothing And CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then
 
             'add range's address to selAddress
@@ -113,14 +82,17 @@ Public Class TrackChanges
             'get the cell based on the column index and the selected ATA named range.
             wkst.Range(ATANamedRange).Offset(-1, colIndex).Resize(1, 1).Value = target.Value
 
+            'add track changes here?
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) IsNot Nothing Then 'sev trend
             lookup.Offset(2, 0).Value = target.Value
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) IsNot Nothing Then 'pp trend
             lookup.Offset(5, 0).Value = target.Value
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) IsNot Nothing Then 'lr trend
             lookup.Offset(8, 0).Value = target.Value
-        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) IsNot Nothing Then 'final exp loss
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) IsNot Nothing And
+            CType(Application.activeworkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'final exp loss
             lookup.Offset(10, 0).Value = target.Value
+            'add track changes here?
         End If
 
     End Sub
@@ -129,9 +101,6 @@ Public Class TrackChanges
         Dim expLoss As Range = wkstSummary.Range("exp_loss")
         Dim lookup As Range = wkstExpLoss.Range("lookup_age")
         Dim rowNum As Integer = expLoss.Rows.Count
-        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
-        Dim age1 As Object
-        Dim dt As Date = Now
         Dim row As Integer
         Dim counter As Integer
 
@@ -142,27 +111,19 @@ Public Class TrackChanges
 
         If evalGroup = "Monthly" Then
             counter = 1
-            age1 = wkst.Range(projBase & "_sel_ATA").Resize(1, 1).Value
         Else
             counter = 3
-            age1 = wkst.Range(projBase & "_sel_ATA_qtrly").Resize(1, 1).Value
         End If
 
+        'show the exp loss from Summary tab - when we change the age cell
         If Application.Intersect(target, lookup) IsNot Nothing Then
-            wkstExpLoss.Range("Pll").Value = CType(expLoss.Cells(rowNum - (CType(lookup.Value, Integer) / counter) + 1, 1), Range).Value
+            row = CType((rowNum - CType(lookup.Value, Integer)) / counter, Integer) + 1
+            wkstExpLoss.Range("P11").Value = CType(CType(expLoss.Cells(row, 1), Range).Value, Double)
+            Exit Sub
         End If
 
+        'change the exp loss in Summary tab to the target value
         CType(expLoss.Cells(rowNum - (CType(lookup.Value, Integer) / counter) + 1, 1), Range).Value = target.Value
-
-        row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
-        CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
-        CType(wkstReviewTemplate.Cells(row, 26), Range).Value = age1
-        CType(wkstReviewTemplate.Cells(row, 27), Range).Value = target.Value
-        CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
-            sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
-        CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
-        CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
-            CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
 
     End Sub
 

@@ -22,6 +22,7 @@ Public Class frmLogin
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Hide()
+        txtBxPw.Clear()
     End Sub
 
     Private Sub frmLogin_Load(sender As Object, e As EventArgs) Handles MyBase.Load

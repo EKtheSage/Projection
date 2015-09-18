@@ -93,8 +93,6 @@ Public Module PullData
 
     Public Sub getData()
         assignValueToControlSheet()
-        getEPEE()
-        getClsdAvg()
     End Sub
     Public Sub assignValueToControlSheet()
         Dim ptData As PivotTable = CType(wkstControl.PivotTables("PT_TriangleList1"), PivotTable)
@@ -143,6 +141,8 @@ Public Module PullData
         evalGroup = CType(wkstControl.Range("eval_group").Value, String)
 
         getTrianglesFromSqlSvr()
+        getEPEE()
+        getClsdAvg()
     End Sub
     Public Sub getTrianglesFromSqlSvr()
         'Chr(39) is the character values for single quote, Chr(32) is the character values for space
@@ -325,6 +325,7 @@ Public Module PullData
     End Sub
 
     Public Sub getGUIBNRCount()
+        'they don't like the next big thing...:(
         'need to get the last time's GU IBNR Count from SQL SVR.
         Dim objFactory As ObjectFactoryMulti2 = New ObjectFactoryMulti2()
         Dim objServerDef As ServerDef = New ServerDef()
@@ -355,7 +356,8 @@ Public Module PullData
         objServerDef.Port = 8594
         objServerDef.Protocol = Protocols.ProtocolBridge
         objServerDef.ClassIdentifier = "440196d4-90f0-11d0-9f41-00a024bb830c"
-
+        'The line below can do windows authentication, but it doesn't seem to work.
+        'objServerDef.BridgeSecurityPackage = "Negotiate"
         objWorkspace = CType(objFactory.CreateObjectByServer("SASApp", True, objServerDef, user, pw), Workspace)
         objKeeper.AddObject(1, "GUCount", objWorkspace) 'GUCount is the name of the object
         objLibref = objWorkspace.DataService.AssignLibref("GU", "", "/reservinganalysis/groundup/ibnr/", "")
@@ -395,5 +397,6 @@ Public Module PullData
         Next
         wkstIBNRCnt.Range("A2").CopyFromRecordset(adoRS)
         objKeeper.RemoveAllObjects()
+        pw = ""
     End Sub
 End Module

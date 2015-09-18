@@ -7,6 +7,7 @@
 
 Imports ExcelDna.Integration
 Imports Microsoft.Office.Interop.Excel
+Imports Microsoft.Office.Core
 
 Module Globals
     Public ReadOnly Property Application As Application
@@ -28,6 +29,7 @@ Public Module ProjectionFormat
     Public wkstIncurred As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Incurred"), Worksheet)
     Public wkstExpLoss As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Exp Loss"), Worksheet)
     Public wkstSummary As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Summary"), Worksheet)
+    Public wkstQPage As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Q Page"), Worksheet)
     Public wkstReviewTemplate As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Review Template"), Worksheet)
     Public wkstData As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Data"), Worksheet)
     Public wkstIBNRCnt As Worksheet = CType(Application.ActiveWorkbook.Worksheets("GU IBNR Count"), Worksheet)
@@ -84,12 +86,16 @@ Public Module ProjectionFormat
         monthToQuarter("Incurred")
         makeTriangleSheets("Incurred")
 
+
+        'wait...if the alt data will be either the actual data or alt data, do we really have to do this part?
+        'yes we do, because we need the macro to produce quarterly data triangle
         monthToQuarterAlt("Incurred")
         monthToQuarterAlt("Paid")
 
         showDefaultTriangleView()
         expLoss()
         summary()
+        QPageFormat()
         reviewTemplate()
 
         'calculate all sheets, then turn calculation back to automatic
@@ -115,9 +121,10 @@ Public Module ProjectionFormat
         target2.SetValue(qtrTri)
 
         'also assigns new formula to the ATA block - Alt data equals actual data if ATA selections are the same, no need to have if/else
-        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(data), Worksheet)
-        wkst.Range(data & "_ATA").FormulaArray = "=ATA(" & data & "_data_alt)"
-        wkst.Range(data & "_qtrlyATA").FormulaArray = "=ATA(" & data & "_qtrlydata_alt)"
+        'actually no need to do this step
+        'Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(data), Worksheet)
+        'wkst.Range(data & "_ATA").FormulaArray = "=ATA(" & data & "_data_alt)"
+        'wkst.Range(data & "_qtrlyATA").FormulaArray = "=ATA(" & data & "_qtrlydata_alt)"
 
     End Sub
     Public Sub monthToQuarter(shtName As String)
@@ -324,20 +331,17 @@ Public Module ProjectionFormat
             Next
 
             If max > 1000 Then
-                max = RoundUp(max, 1000)
-                min = RoundUp(min, 1000) - 2000
+                max = UDFRoundUp(max, 100)
+                min = UDFRoundDown(min, 100)
             ElseIf max < 1000 And max > 100 Then
-                max = RoundUp(max, 100)
-                min = RoundUp(min, 100) - 200
-            ElseIf max < 100 And max > 10 Then
-                max = RoundUp(max, 5)
-                min = RoundUp(min, 5) - 10
-            ElseIf max < 10 And max > 1 Then
-                max = Math.Round(max, 2)
-                min = Math.Round(min, 2) - 0.5
-            ElseIf max < 1 And max > 0 Then
-                max = Math.Round(max, 2)
-                min = Math.Round(min, 2) - 0.125
+                max = UDFRoundUp(max, 10)
+                min = UDFRoundDown(min, 10)
+            ElseIf max < 100 And max > 2 Then
+                max = UDFRoundUp(max, 1)
+                min = UDFRoundDown(min, 1)
+            ElseIf max < 2 And max > 0 Then
+                max = UDFRoundUp(max, 0.01)
+                min = UDFRoundDown(min, 0.01)
             End If
 
             If min < 0 Then
@@ -345,7 +349,7 @@ Public Module ProjectionFormat
             End If
             majorUnit = (max - min) / 10
 
-            With CType(chartObj.Chart.Axes(XlAxisType.xlValue), Axis)
+            With CType(chartObj.Chart.Axes(Microsoft.Office.Interop.Excel.XlAxisType.xlValue), Axis)
                 .MaximumScale = max
                 .MinimumScale = min
                 .MajorUnit = majorUnit
@@ -457,6 +461,19 @@ Public Module ProjectionFormat
 
     End Sub
 
+    Public Sub QPageFormat()
+        Dim dataRng As Range = wkstQPage.ListObjects("tbl_QPage").Range
+        Dim endColumn As Integer = CType(dataRng.Columns(dataRng.Columns.Count), Range).Column
+
+        For i As Integer = 1 To endColumn
+            Dim c As Range = CType(wkstQPage.Cells(8, i), Range)
+            c.EntireColumn.Hidden = False
+            If CType(c.Value, String) = "(hide)" Then
+                c.EntireColumn.Hidden = True
+            End If
+        Next
+
+    End Sub
     Public Sub reviewTemplate()
         Dim summary As Range = wkstSummary.Range("summary")
         Dim reserves As Double
@@ -507,6 +524,10 @@ Public Module ProjectionFormat
 
     Public Sub finalizeATA()
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet)
+        Dim row As Integer
+        Dim dt As Date = Now
+        row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
+
         Dim rng As Range
         Dim selATA As Object(,)
 
@@ -531,19 +552,42 @@ Public Module ProjectionFormat
                 CType(wkstReviewTemplate.Cells(10 + i, 6), Range).Value = selATA(i, 0)
             Next
             CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
+
+            'track changes on the review template
+            CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
+            CType(wkstReviewTemplate.Cells(row, 26), Range).Value = rng.Resize(1, 1).Value
+            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("$P$11").Value
+            CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
+                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
+            CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
+            CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
+                CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
         ElseIf wkst.Name <> projBase And (wkst.Name = "Paid" Or wkst.Name = "Incurred") Then
             MsgBox("Your projection does not use " & wkst.Name & " ATA factors for estimating the reserves!")
         Else
-            MsgBox("You are on the wrong tab!")
+            MsgBox("You are on the wrong worksheet!")
         End If
     End Sub
 
     Public Sub finalizeExpLoss()
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet)
         Dim counter As Integer
+        Dim wkst2 As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
+        Dim age1 As Object
+        Dim row As Integer
+        Dim dt As Date = Now
 
         If wkst.Name <> "Exp Loss" Then
+            MsgBox("You are not on the Exp Loss worksheet!")
             Exit Sub
+        End If
+
+        If evalGroup = "Monthly" Then
+            counter = 1
+            age1 = wkst2.Range(projBase & "_sel_ATA").Resize(1, 1).Value
+        Else
+            counter = 3
+            age1 = wkst2.Range(projBase & "_sel_ATA_qtrly").Resize(1, 1).Value
         End If
 
         If (CType(wkst.Range("lookup_age").Value, Integer) = 1 And evalGroup = "Monthly") Or
@@ -554,12 +598,18 @@ Public Module ProjectionFormat
             wkstReviewTemplate.Range("E27").Value = wkst.Range("P11").Value
             wkstReviewTemplate.Range("RT_ExpLossAge1").Value = wkst.Range("P11").Value
             wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
+
+            'track changes on Review Template
+            row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
+            CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
+            CType(wkstReviewTemplate.Cells(row, 26), Range).Value = age1
+            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkst.Range("P11").Value
+            CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
+                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
+            CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
+            CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
+                CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
         Else
-            If evalGroup = "Monthly" Then
-                counter = 1
-            Else
-                counter = 3
-            End If
             MsgBox("Can only bring Age " & counter & " expected loss to review template!")
             Exit Sub
         End If
@@ -609,14 +659,19 @@ Public Module ProjectionFormat
     End Function
 
     'Round numbers up to the specified multiple
-    Private Function RoundUp(num As Double, multiple As Integer) As Integer
-
+    Public Function UDFRoundUp(num As Double, multiple As Double) As Double
         If (multiple = 0) Then
             Return 0
         End If
-        Dim add As Integer
-        add = CType(multiple / Math.Abs(multiple), Integer)
-        Return CType(((num + multiple - add) / multiple), Integer) * multiple
+        Return Math.Ceiling(num / multiple) * multiple
+    End Function
+
+    'Round numbers down to the specified multiple
+    Public Function UDFRoundDown(num As Double, multiple As Double) As Double
+        If (multiple = 0) Then
+            Return 0
+        End If
+        Return Math.Floor(num / multiple) * multiple
     End Function
 
 End Module
