@@ -33,8 +33,11 @@
               <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
                       imageMso ='Piggy'
                       onAction='RunTagMacro' tag='loadGUIBNRCountFormLogin' />
-              <button id='setupProjection' label='Setup Projection' size='large'
+              <button id='getHistoryData' label='Get History Data' size='large'
                       imageMso ='_3'
+                      onAction='RunTagMacro' tag='runVBAHistory' />
+              <button id='setupProjection' label='Setup Projection' size='large'
+                      imageMso ='_4'
                       onAction='RunTagMacro' tag='setup' />
             </group>
             <group id='TemplateFormatGroup' label='Format Worksheets'>
@@ -64,6 +67,9 @@
               <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='large' 
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='finalizeExpLoss' />
+            <button id='transferToSQL' label='Transfer data to SQL Server' size='large' 
+                      imageMso ='HappyFace'
+                      onAction='RunTagMacro' tag='runVBANewData' />
             </group>          
           </tab>
         </tabs>

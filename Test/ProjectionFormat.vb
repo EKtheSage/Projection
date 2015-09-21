@@ -615,6 +615,14 @@ Public Module ProjectionFormat
         End If
     End Sub
 
+    Public Sub runVBAHistory()
+        Application.Run("History")
+    End Sub
+
+    Public Sub runVBANewData()
+        Application.Run("NewData")
+    End Sub
+
     Public Sub finalizeGraphs()
         graphsUpdate("Exp Loss")
         graphsUpdate("Review Template")
