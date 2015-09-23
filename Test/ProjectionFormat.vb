@@ -400,11 +400,11 @@ Public Module ProjectionFormat
         CType(rng.Columns(6), Range).Formula = "=VLOOKUP(accident_date,Count_Summary,column_count_summary_selULT,0)"
         CType(rng.Columns(7), Range).Formula = "=ult_counts/ee*1000"
         CType(rng.Columns(8), Range).Formula = "=VLOOKUP(accident_date,Paid_Summary,column_paid_summary_curAmt,0)"
-        CType(rng.Columns(9), Range).Formula = "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0)"
-        CType(rng.Columns(10), Range).Formula = "=cur_paid/percent_paid"
+        CType(rng.Columns(9), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0),0)"
+        CType(rng.Columns(10), Range).Formula = "=IFERROR(cur_paid/percent_paid,0)"
         CType(rng.Columns(11), Range).Formula = "=VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_curAmt,0)"
-        CType(rng.Columns(12), Range).Formula = "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0)"
-        CType(rng.Columns(13), Range).Formula = "=cur_incurred/percent_incurred"
+        CType(rng.Columns(12), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
+        CType(rng.Columns(13), Range).Formula = "=IFERROR(cur_incurred/percent_incurred,0)"
 
         CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, ExpLoss,2,0)"
         'remove age 1 exp loss formula

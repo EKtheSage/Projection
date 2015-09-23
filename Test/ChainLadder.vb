@@ -106,6 +106,10 @@ Public Module ChainLadder
 
         For i As Integer = 0 To out.GetUpperBound(0)
             For j As Integer = 0 To out.GetUpperBound(1) - i
+                'cannot allow division by 0
+                If CType(triangle(i, j + 1), Double) = 0 Or CType(triangle(i, j), Double) = 0 Then
+                    out(i, j) = 1
+                End If
                 out(i, j) = Math.Round(CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double), 4)
             Next
         Next
@@ -164,7 +168,9 @@ Public Module ChainLadder
             Case ATAType.LeastSquare
                 out = LstSqr(numPt, triangle)
             Case ATAType.HighLow
+                out = HighLow(numPt, triangle)
             Case ATAType.Seasonal
+                out = seasonal(numPt, triangle)
             Case Else
         End Select
 
@@ -322,7 +328,46 @@ Public Module ChainLadder
 
     Public Function HighLow(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
         Dim out(triangle.GetUpperBound(1) - 1) As Double
+        Dim ATATri(triangle.GetUpperBound(0) - 1, triangle.GetUpperBound(1) - 1) As Double
+        Dim ATAMax As Double
+        Dim ATAMin As Double
+        Dim ATASum As Double
+        Dim counter As Integer
+        ATATri = ATA(triangle)
 
+        For j As Integer = 0 To ATATri.GetUpperBound(1)
+            ATASum = 0
+            ATAMax = Double.MinValue
+            ATAMin = Double.MaxValue
+            'let 0 = using all available points
+            If numPt = 0 Then
+                numPt = triangle.GetUpperBound(0) - j
+            End If
+
+            'if number of rows are less than specified points, use all available points
+            If triangle.GetUpperBound(0) - j < numPt Then
+                counter = numPt - (triangle.GetUpperBound(0) - j)
+            Else
+                counter = 0
+            End If
+
+            For i As Integer = ATATri.GetUpperBound(0) - j - numPt + 1 + counter To ATATri.GetUpperBound(0) - j
+                ATASum = ATASum + ATATri(i, j)
+                ATAMax = Math.Max(ATAMax, ATATri(i, j))
+                ATAMin = Math.Min(ATAMin, ATATri(i, j))
+            Next
+
+            If ATASum < (numPt - counter - 2) Then
+                out(j) = 1
+            Else
+                out(j) = Math.Round((ATASum - ATAMax - ATAMin) / (numPt - counter - 2), 4)
+            End If
+
+            'manually assign last 2 points to be 1
+            If j > ATATri.GetUpperBound(1) - 2 Then
+                out(j) = 1
+            End If
+        Next
         Return out
     End Function
 

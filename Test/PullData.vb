@@ -324,6 +324,12 @@ Public Module PullData
         frmLogin.Show()
     End Sub
 
+    Public Sub getGUIBNRCountVBA()
+        Dim id As Integer
+        id = CType(Application.Run("Info"), Integer)
+        Application.Run("IBNRCounts", id)
+    End Sub
+
     Public Sub getGUIBNRCount()
         'they don't like the next big thing...:(
         'need to get the last time's GU IBNR Count from SQL SVR.

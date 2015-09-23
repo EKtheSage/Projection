@@ -30,15 +30,15 @@
               <button id='assignValueToControl' label='Get Data From SQL' size='large'
                       imageMso ='_2'
                       onAction='RunTagMacro' tag='getData' />
-              <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
-                      imageMso ='Piggy'
-                      onAction='RunTagMacro' tag='loadGUIBNRCountFormLogin' />
               <button id='getHistoryData' label='Get History Data' size='large'
                       imageMso ='_3'
                       onAction='RunTagMacro' tag='runVBAHistory' />
               <button id='setupProjection' label='Setup Projection' size='large'
                       imageMso ='_4'
                       onAction='RunTagMacro' tag='setup' />
+              <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
+                      imageMso ='Piggy'
+                      onAction='RunTagMacro' tag='getGUIBNRCountVBA' />
             </group>
             <group id='TemplateFormatGroup' label='Format Worksheets'>
               <button id='showAllTriangles' label='Show All Triangles' size='normal' 
