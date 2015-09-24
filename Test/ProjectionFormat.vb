@@ -93,8 +93,8 @@ Public Module ProjectionFormat
         monthToQuarterAlt("Paid")
 
         showDefaultTriangleView()
-        expLoss()
         summary()
+        expLoss()
         QPageFormat()
         reviewTemplate()
 
@@ -651,6 +651,24 @@ Public Module ProjectionFormat
             End If
         Next
     End Sub
+
+    Public Function convertDate(ByVal month As Integer, ByVal year As Integer, ByVal currentDate As Date) As Date
+        Dim newDate As Date
+        If evalGroup = "Monthly" Then
+            newDate = New Date(year, month, Date.DaysInMonth(year, month))
+        Else
+            If currentDate.Month Mod 3 = 0 Then
+                newDate = New Date(year, month * 3, Date.DaysInMonth(year, month * 3))
+            ElseIf currentDate.Month Mod 3 = 1 Then
+                newDate = New Date(year, month * 3 - 2, Date.DaysInMonth(year, month * 3 - 2))
+            Else
+                newDate = New Date(year, month * 3 - 1, Date.DaysInMonth(year, month * 3 - 1))
+            End If
+        End If
+
+        Return newDate
+    End Function
+
     'Converts a monthly triangle to a quarterly triangle
     Private Function quarterTriangle(ByVal monthTriangle As Object(,)) As Double(,)
         Dim out(Convert.ToInt32(monthTriangle.GetUpperBound(0) / 3) - 1,
@@ -667,7 +685,7 @@ Public Module ProjectionFormat
     End Function
 
     'Round numbers up to the specified multiple
-    Public Function UDFRoundUp(num As Double, multiple As Double) As Double
+    Private Function UDFRoundUp(num As Double, multiple As Double) As Double
         If (multiple = 0) Then
             Return 0
         End If
@@ -675,7 +693,7 @@ Public Module ProjectionFormat
     End Function
 
     'Round numbers down to the specified multiple
-    Public Function UDFRoundDown(num As Double, multiple As Double) As Double
+    Private Function UDFRoundDown(num As Double, multiple As Double) As Double
         If (multiple = 0) Then
             Return 0
         End If
