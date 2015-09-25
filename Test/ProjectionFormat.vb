@@ -237,6 +237,7 @@ Public Module ProjectionFormat
         rng = wkst.Range(shtName & "_Summary")
         nameOfRange = CType(rng.Name, Name)
         rng.ClearContents()
+        rng.Offset(1, 0).ClearContents() 'remove total row
         CType(rng.Columns(10), Range).Offset(0, 1).ClearContents()
 
         If evalGroup = "Monthly" Then
@@ -269,8 +270,14 @@ Public Module ProjectionFormat
         CType(rng.Columns(5), Range).FormulaArray = lastTime
         CType(rng.Columns(6), Range).FormulaArray = defaultATA
         CType(rng.Columns(7), Range).FormulaArray = selATA
+
         CType(rng.Columns(8), Range).Formula = "=$C521*(E521-$D521)+$D521"
+        CType(CType(rng.Columns(8), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_priorUlt))"
+
         CType(rng.Columns(9), Range).Formula = "=$C521*(F521-$D521)+$D521"
+        CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
 
         If shtName = "Count" Then
             CType(rng.Columns(10), Range).Formula = "=If($K521="""",$C521*(G521-$D521)+$D521,$K521+$C521)"
@@ -278,6 +285,9 @@ Public Module ProjectionFormat
         Else
             CType(rng.Columns(10), Range).Formula = "=$C521*(G521-$D521)+$D521"
         End If
+
+        CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
 
         With nameOfRange
             .Name = shtName & "_Summary"
@@ -406,7 +416,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(12), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
         CType(rng.Columns(13), Range).Formula = "=IFERROR(cur_incurred/percent_incurred,0)"
 
-        CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, ExpLoss,2,0)"
+        CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, tbl_expLoss,2,0)"
         'remove age 1 exp loss formula
         CType(rng.Columns(14), Range).End(XlDirection.xlDown).ClearContents()
 
@@ -423,7 +433,7 @@ Public Module ProjectionFormat
         End If
 
         CType(rng.Columns(18), Range).Formula =
-            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,VLOOKUP(accident_date,ExpLoss,5,0))"
+            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,VLOOKUP(accident_date,tbl_expLoss,5,0))"
         'age 1 exp loss doesn't use prior loss
         CType(rng.Columns(18), Range).End(XlDirection.xlDown).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
@@ -652,6 +662,7 @@ Public Module ProjectionFormat
         Next
     End Sub
 
+    'A simple function to convert dates to quarterly dates (not very elegant...)
     Public Function convertDate(ByVal month As Integer, ByVal year As Integer, ByVal currentDate As Date) As Date
         Dim newDate As Date
         If evalGroup = "Monthly" Then

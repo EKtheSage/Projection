@@ -27,10 +27,10 @@
               <button id='getTriangleList' label='Get Triangle List' size='large'
                       imageMso ='_1'
                       onAction='RunTagMacro' tag='getInitialTriangleList' />
-              <button id='assignValueToControl' label='Get Data From SQL' size='large'
+              <button id='assignValueToControl' label='Get Triangle Data From SQL' size='large'
                       imageMso ='_2'
                       onAction='RunTagMacro' tag='getData' />
-              <button id='getHistoryData' label='Get History Data' size='large'
+              <button id='getHistoryData' label='Get Prior Data From SQL' size='large'
                       imageMso ='_3'
                       onAction='RunTagMacro' tag='runVBAHistory' />
               <button id='setupProjection' label='Setup Projection' size='large'

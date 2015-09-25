@@ -83,14 +83,24 @@ Public Class TrackChanges
             wkst.Range(ATANamedRange).Offset(-1, colIndex).Resize(1, 1).Value = target.Value
 
             'add track changes here?
-        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) IsNot Nothing Then 'sev trend
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) IsNot Nothing And
+                CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'sev trend
+
             lookup.Offset(2, 0).Value = target.Value
-        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) IsNot Nothing Then 'pp trend
+
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) IsNot Nothing And
+                CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'pp trend
+
             lookup.Offset(5, 0).Value = target.Value
-        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) IsNot Nothing Then 'lr trend
+
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) IsNot Nothing And
+                CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'lr trend
+
             lookup.Offset(8, 0).Value = target.Value
+
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) IsNot Nothing And
-            CType(Application.activeworkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'final exp loss
+                CType(Application.activeworkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'final exp loss
+
             lookup.Offset(10, 0).Value = target.Value
             'add track changes here?
         End If
@@ -115,10 +125,10 @@ Public Class TrackChanges
             counter = 3
         End If
 
-        'show the exp loss from Summary tab - when we change the age cell
+        'get the exp loss from Summary tab - when we change the age cell
         If Application.Intersect(target, lookup) IsNot Nothing Then
-            row = CType((rowNum - CType(lookup.Value, Integer)) / counter, Integer) + 1
-            wkstExpLoss.Range("P11").Value = CType(CType(expLoss.Cells(row, 1), Range).Value, Double)
+            row = rowNum - CType(CType(lookup.Value, Integer) / counter, Integer) + 1
+            wkstExpLoss.Range("P11").Value = CType(expLoss.Cells(row, 1), Range).Value
             Exit Sub
         End If
 
