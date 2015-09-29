@@ -330,6 +330,11 @@ Public Module PullData
         Application.Run("IBNRCounts", id)
     End Sub
 
+    Public Sub getClsModVBA()
+        Application.Run("getClsModData")
+        Application.Run("getClsModSpr")
+    End Sub
+
     Public Sub getGUIBNRCount()
         'they don't like the next big thing...:(
         'need to get the last time's GU IBNR Count from SQL SVR.

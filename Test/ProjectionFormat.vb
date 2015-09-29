@@ -34,7 +34,6 @@ Public Module ProjectionFormat
     Public wkstData As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Data"), Worksheet)
     Public wkstIBNRCnt As Worksheet = CType(Application.ActiveWorkbook.Worksheets("GU IBNR Count"), Worksheet)
     Public wkstClsdAvg As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Closed Avg"), Worksheet)
-    Public wkstIC As Worksheet = CType(Application.ActiveWorkbook.Worksheets("IC Volatility"), Worksheet)
     Public evalGroup As String = CType(wkstControl.Range("eval_group").Value, String)
     Public projBase As String = CType(wkstControl.Range("proj_base").Value, String)
     Public includeSS As String = CType(wkstControl.Range("include_ss").Value, String)
@@ -439,7 +438,7 @@ Public Module ProjectionFormat
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
 
         CType(rng.Columns(19), Range).Formula = "=preIC_ultloss+volatility"
-        'rng.Columns(20).Formula
+        CType(rng.Columns(20), Range).Formula = "=IF(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
         CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
         CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep*1000"

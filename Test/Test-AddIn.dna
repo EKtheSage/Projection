@@ -39,6 +39,9 @@
               <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
                       imageMso ='Piggy'
                       onAction='RunTagMacro' tag='getGUIBNRCountVBA' />
+              <button id='getClosMod' label='Get Closure Model' size='large'
+                      imageMso ='MagicEightBall'
+                      onAction='RunTagMacro' tag='getClsModVBA' />
             </group>
             <group id='TemplateFormatGroup' label='Format Worksheets'>
               <button id='showAllTriangles' label='Show All Triangles' size='normal' 
