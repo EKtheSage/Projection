@@ -266,6 +266,8 @@ Public Module ProjectionFormat
             CType(rng.Cells(i, 3), Range).Value = CType(wkst.Range(dataRng).Cells(i, rowNum - i + 1), Range).Value
         Next
 
+        CType(CType(rng.Columns(3), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_curAmt))"
         CType(rng.Columns(5), Range).FormulaArray = lastTime
         CType(rng.Columns(6), Range).FormulaArray = defaultATA
         CType(rng.Columns(7), Range).FormulaArray = selATA
@@ -279,7 +281,7 @@ Public Module ProjectionFormat
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
 
         If shtName = "Count" Then
-            CType(rng.Columns(10), Range).Formula = "=If($K521="""",$C521*(G521-$D521)+$D521,$K521+$C521)"
+            CType(rng.Columns(10), Range).Formula = "=If($K521=0,$C521*(G521-$D521)+$D521,$K521+$C521)"
             CType(rng.Columns(10), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
         Else
             CType(rng.Columns(10), Range).Formula = "=$C521*(G521-$D521)+$D521"
