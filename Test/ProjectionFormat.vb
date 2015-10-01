@@ -257,6 +257,10 @@ Public Module ProjectionFormat
             counter = 3
         End If
 
+        'remove selections
+        wkst.Range(shtName & "_sel_ATA").Offset(-1, 0).ClearContents()
+        wkst.Range(shtName & "_sel_ATA_qtrly").Offset(-1, 0).ClearContents()
+
         rng = rng.Resize(rowNum, 10)
         CType(rng.Columns(1), Range).FormulaArray = dateRng
 
