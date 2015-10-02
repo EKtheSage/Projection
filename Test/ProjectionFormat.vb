@@ -538,7 +538,7 @@ Public Module ProjectionFormat
     End Sub
 
     Public Sub finalizeATA()
-        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet)
+        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim row As Integer
         Dim dt As Date = Now
         row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
@@ -546,56 +546,44 @@ Public Module ProjectionFormat
         Dim rng As Range
         Dim selATA As Object(,)
 
-        If wkst.Name = projBase Then
-            If evalGroup = "Monthly" Then
-                rng = wkst.Range(wkst.Name & "_sel_ATA").Resize(1, 6)
-            Else
-                rng = wkst.Range(wkst.Name & "_sel_ATA_qtrly").Resize(1, 6)
-            End If
-
-            'this part just converts a row of cells into a column of cells
-            selATA = New Object(5, 0) {}
-
-            For i As Integer = 0 To rng.Columns.Count - 1
-                selATA(i, 0) = CType(rng.Cells(1, rng.Columns.Count - i), Range).Value
-            Next
-
-            'assigns the newly created column of cells to review template
-            CType(wkstReviewTemplate.Cells(9, 5), Range).Value = CType(wkstReviewTemplate.Cells(9, 6), Range).Value
-            For i As Integer = 0 To 5
-                CType(wkstReviewTemplate.Cells(10 + i, 5), Range).Value = selATA(i, 0)
-                CType(wkstReviewTemplate.Cells(10 + i, 6), Range).Value = selATA(i, 0)
-            Next
-            CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
-
-            'track changes on the review template
-            CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
-            CType(wkstReviewTemplate.Cells(row, 26), Range).Value = rng.Resize(1, 1).Value
-            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("$P$11").Value
-            CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
-                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
-            CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
-            CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
-                CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
-        ElseIf wkst.Name <> projBase And (wkst.Name = "Paid" Or wkst.Name = "Incurred") Then
-            MsgBox("Your projection does not use " & wkst.Name & " ATA factors for estimating the reserves!")
+        If evalGroup = "Monthly" Then
+            rng = wkst.Range(wkst.Name & "_sel_ATA").Resize(1, 6)
         Else
-            MsgBox("You are on the wrong worksheet!")
+            rng = wkst.Range(wkst.Name & "_sel_ATA_qtrly").Resize(1, 6)
         End If
+
+        'this part just converts a row of cells into a column of cells
+        selATA = New Object(5, 0) {}
+
+        For i As Integer = 0 To rng.Columns.Count - 1
+            selATA(i, 0) = CType(rng.Cells(1, rng.Columns.Count - i), Range).Value
+        Next
+
+        'assigns the newly created column of cells to review template
+        CType(wkstReviewTemplate.Cells(9, 5), Range).Value = CType(wkstReviewTemplate.Cells(9, 6), Range).Value
+        For i As Integer = 0 To 5
+            CType(wkstReviewTemplate.Cells(10 + i, 5), Range).Value = selATA(i, 0)
+            CType(wkstReviewTemplate.Cells(10 + i, 6), Range).Value = selATA(i, 0)
+        Next
+        CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
+
+        'track changes on the review template
+        CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
+        CType(wkstReviewTemplate.Cells(row, 26), Range).Value = rng.Resize(1, 1).Value
+        CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("$P$11").Value
+        CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
+                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
+        CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
+        CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
+        CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
     End Sub
 
     Public Sub finalizeExpLoss()
-        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet)
         Dim counter As Integer
         Dim wkst2 As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim age1 As Object
         Dim row As Integer
         Dim dt As Date = Now
-
-        If wkst.Name <> "Exp Loss" Then
-            MsgBox("You are not on the Exp Loss worksheet!")
-            Exit Sub
-        End If
 
         If evalGroup = "Monthly" Then
             counter = 1
@@ -605,20 +593,20 @@ Public Module ProjectionFormat
             age1 = wkst2.Range(projBase & "_sel_ATA_qtrly").Resize(1, 1).Value
         End If
 
-        If (CType(wkst.Range("lookup_age").Value, Integer) = 1 And evalGroup = "Monthly") Or
-            (CType(wkst.Range("lookup_age").Value, Integer) = 3 And evalGroup = "Quarterly") Then
-            wkstReviewTemplate.Range("RT_SevTrnd").Value = wkst.Range("P3").Value
-            wkstReviewTemplate.Range("RT_PPTrnd").Value = wkst.Range("P6").Value
-            wkstReviewTemplate.Range("RT_LRTrnd").Value = wkst.Range("P9").Value
-            wkstReviewTemplate.Range("E27").Value = wkst.Range("P11").Value
-            wkstReviewTemplate.Range("RT_ExpLossAge1").Value = wkst.Range("P11").Value
+        If (CType(wkstExpLoss.Range("lookup_age").Value, Integer) = 1 And evalGroup = "Monthly") Or
+            (CType(wkstExpLoss.Range("lookup_age").Value, Integer) = 3 And evalGroup = "Quarterly") Then
+            wkstReviewTemplate.Range("RT_SevTrnd").Value = wkstExpLoss.Range("P3").Value
+            wkstReviewTemplate.Range("RT_PPTrnd").Value = wkstExpLoss.Range("P6").Value
+            wkstReviewTemplate.Range("RT_LRTrnd").Value = wkstExpLoss.Range("P9").Value
+            wkstReviewTemplate.Range("E27").Value = wkstExpLoss.Range("P11").Value
+            wkstReviewTemplate.Range("RT_ExpLossAge1").Value = wkstExpLoss.Range("P11").Value
             wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
 
             'track changes on Review Template
             row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
             CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
             CType(wkstReviewTemplate.Cells(row, 26), Range).Value = age1
-            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkst.Range("P11").Value
+            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("P11").Value
             CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
                 sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
             CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
