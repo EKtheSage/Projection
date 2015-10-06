@@ -15,20 +15,30 @@ Public Class TrackChanges
     Public Sub AutoOpen() Implements IExcelAddIn.AutoOpen
         Application = CType(ExcelDnaUtil.Application, Application)
         AddHandler Application.SheetChange, AddressOf WorksheetChange
+        AddHandler Application.SheetDeactivate, AddressOf WorksheetDeactivate
+    End Sub
+
+    Private Sub WorksheetDeactivate(sh As Object)
+        If CType(sh, Worksheet).Name = projBase Or CType(sh, Worksheet).Name = wkstExpLoss.Name Then
+            finalizeATA()
+            finalizeExpLoss()
+        Else
+            Exit Sub
+        End If
     End Sub
 
     Private Sub WorksheetChange(sh As Object, target As Range)
         Dim rngName As Name
 
-        If CType(sh, Worksheet).Name = "Exp Loss" Then
+        If CType(sh, Worksheet).Name = wkstExpLoss.Name Then
             worksheetExpLossChange(target)
         End If
 
-        If CType(sh, Worksheet).Name = "Review Template" Then
+        If CType(sh, Worksheet).Name = wkstReviewTemplate.Name Then
             worksheetReviewTemplateChange(target)
         End If
 
-        If CType(sh, Worksheet).Name = "Control" Then
+        If CType(sh, Worksheet).Name = wkstControl.Name Then
             Try
                 rngName = CType(target.Name, Name)
                 If rngName.Name = "eval_group" Then

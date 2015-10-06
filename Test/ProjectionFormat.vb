@@ -187,8 +187,6 @@ Public Module ProjectionFormat
         Dim wkst As Worksheet
         Dim month, quarter As Boolean
         Dim hideRows As Range
-        'Dim accDateCol As Range
-        'Dim fieldInfoArray() As Integer = New Integer() {1, XlColumnDataType.xlYMDFormat}
 
         Application.Calculation = XlCalculation.xlCalculationManual
 
@@ -203,13 +201,6 @@ Public Module ProjectionFormat
                     quarter = False
                     hideRows = Application.Union(CType(wkst.Rows("381:416"), Range), CType(wkst.Rows("443:477"), Range))
                 End If
-                'CType(wkst.Columns("Z:FX"), Range).EntireColumn.Hidden = True
-
-                'accDateCol = wkst.Range(wkst.Name & "_data").Offset(0, -1).Resize(180, 1)
-                'accDateCol.TextToColumns(Destination:=accDateCol, FieldInfo:=fieldInfoArray)
-                'wkst.Activate()
-                'MsgBox("does it work?")
-
 
                 CType(wkst.Rows("1:379"), Range).EntireRow.Hidden = month
                 CType(wkst.Rows("380:519"), Range).EntireRow.Hidden = quarter
@@ -430,7 +421,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(16), Range).Formula =
             "=ultLoss(""S"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
 
-        'letter selection column needs to be updated based on Paid/Incurred
+        'letter selection column needs to be updated based on Paid/Incurred, A or H and B or G
         If projBase = "Paid" Then
             CType(rng.Columns(17), Range).Formula = "=IF(percent_paid>0.935, ""A"", ""E"")"
         Else
