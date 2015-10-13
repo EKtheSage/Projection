@@ -117,7 +117,6 @@
     <Compile Include="FactorSelectionPane.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Subtotal.vb" />
     <Compile Include="TrackChanges.vb" />
     <Compile Include="Triangle.vb" />
   </ItemGroup>
