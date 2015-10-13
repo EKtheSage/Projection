@@ -1,5 +1,5 @@
-<DnaLibrary Name="Test Add-In" RuntimeVersion="v4.0">
-  <ExternalLibrary Path="Test.dll" LoadFromBytes="true" Pack="true" />
+<DnaLibrary Name="Projection Add-In" RuntimeVersion="v4.0">
+  <ExternalLibrary Path="Projection.dll" LoadFromBytes="true" Pack="true" />
   
   <!-- 
        The RuntimeVersion attribute above allows two settings:

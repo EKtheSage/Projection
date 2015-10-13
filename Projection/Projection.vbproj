@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{469074EB-BAFE-451C-8D11-38B802757A32}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Test</RootNamespace>
-    <AssemblyName>Test</AssemblyName>
+    <RootNamespace>Projection</RootNamespace>
+    <AssemblyName>Projection</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -18,7 +18,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>Test.xml</DocumentationFile>
+    <DocumentationFile>Projection.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -29,7 +29,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>Test.xml</DocumentationFile>
+    <DocumentationFile>Projection.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -136,7 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="scratch work.txt" />
-    <Content Include="Test-AddIn.dna">
+    <Content Include="Projection-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
@@ -186,16 +186,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "C:\Users\Ethan\Documents\Visual Studio 2015\Projects\Test\packages\Excel-DNA.0.32.0\tools\ExcelDna.xll" "$(TargetDir)Test-AddIn.xll*" /C /Y
-xcopy "$(TargetDir)Test-AddIn.dna*" "$(TargetDir)Test-AddIn64.dna*" /C /Y
-xcopy "C:\Users\Ethan\Documents\Visual Studio 2015\Projects\Test\packages\Excel-DNA.0.32.0\tools\ExcelDna64.xll" "$(TargetDir)Test-AddIn64.xll*" /C /Y
-"C:\Users\Ethan\Documents\Visual Studio 2015\Projects\Test\packages\Excel-DNA.0.32.0\tools\ExcelDnaPack.exe" "$(TargetDir)Test-AddIn.dna" /Y
-"C:\Users\Ethan\Documents\Visual Studio 2015\Projects\Test\packages\Excel-DNA.0.32.0\tools\ExcelDnaPack.exe" "$(TargetDir)Test-AddIn64.dna" /Y
-xcopy "$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna.xll" "$(TargetDir)Test-AddIn.xll*" /C /Y
-xcopy "$(TargetDir)Test-AddIn.dna*" "$(TargetDir)Test-AddIn64.dna*" /C /Y
-xcopy "$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna64.xll" "$(TargetDir)Test-AddIn64.xll*" /C /Y
-"$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDnaPack.exe" "$(TargetDir)Test-AddIn.dna" /Y
-"$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDnaPack.exe" "$(TargetDir)Test-AddIn64.dna" /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna.xll" "$(TargetDir)Projection-AddIn.xll*" /C /Y
+xcopy "$(TargetDir)Projection-AddIn.dna*" "$(TargetDir)Projection-AddIn64.dna*" /C /Y
+xcopy "$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna64.xll" "$(TargetDir)Projection-AddIn64.xll*" /C /Y
+"$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDnaPack.exe" "$(TargetDir)Projection-AddIn.dna" /Y
+"$(SolutionDir)\packages\ExcelDna.AddIn.0.33.9\tools\ExcelDnaPack.exe" "$(TargetDir)Projection-AddIn64.dna" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
