@@ -82,7 +82,8 @@ Public Class TrackChanges
         End If
 
         'if target is in F10:F15 and active worksheet is Review Template - then change the ATA factors in Paid/Incurred
-        If Application.Intersect(target, finalSel) IsNot Nothing And CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then
+        If Application.Intersect(target, finalSel) IsNot Nothing And
+            CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then
 
             'add range's address to selAddress
             For i As Integer = 0 To finalSel.Rows.Count - 1
@@ -109,7 +110,7 @@ Public Class TrackChanges
             lookup.Offset(8, 0).Value = target.Value
 
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_ExpLossAge1")) IsNot Nothing And
-                CType(Application.activeworkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'final exp loss
+                CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'final exp loss
 
             lookup.Offset(10, 0).Value = target.Value
             'add track changes here?

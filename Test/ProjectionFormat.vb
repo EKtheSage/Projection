@@ -71,6 +71,17 @@ Public Module ProjectionFormat
         preIC_lr = 41
     End Enum
 
+    Enum namedRangesTriangle
+        'this enum will allow us to do range resize on the triangle worksheets, will need to change numbers 
+        'whenever summary worksheet columns change
+        _CurAmt = 3
+        _Cap = 4
+        _Exclusion = 5
+        _prior_ATU = 6
+        _default_ATU = 7
+        _sel_ATU = 8
+    End Enum
+
     Public Sub setup()
 
         'turn off calculation until everything is setup
@@ -104,6 +115,8 @@ Public Module ProjectionFormat
         wkstExpLoss.Activate()
         graphsUpdate("Exp Loss")
         graphsUpdate("Review Template")
+
+        CType(Application.Worksheets(projBase), Worksheet).Activate()
 
     End Sub
 
@@ -217,10 +230,11 @@ Public Module ProjectionFormat
 
     Public Sub makeTriangleSheets(shtName As String)
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(shtName), Worksheet)
-        Dim rng As Range
+        Dim rng, rng2 As Range
         Dim dateRng, dataRng, lastTime, defaultATA, selATA As String
         Dim rowNum, counter As Integer
         Dim nameOfRange As Name
+        Dim namedRangeValues As Array = System.Enum.GetValues(GetType(namedRanges))
 
         Application.Calculation = XlCalculation.xlCalculationManual
 
@@ -253,6 +267,25 @@ Public Module ProjectionFormat
         wkst.Range(shtName & "_sel_ATA_qtrly").Offset(-1, 0).ClearContents()
 
         rng = rng.Resize(rowNum, 10)
+
+        'resize named ranges here
+        For Each name As namedRanges In namedRangeValues
+            nameOfRange = CType(wkst.Range(shtName & name.ToString()).Name, Name)
+            rng2 = wkst.Range(shtName & name.ToString()).Resize(rowNum)
+            With nameOfRange
+                .Name = shtName & name.ToString()
+                .RefersTo = rng2
+            End With
+        Next
+
+        If shtName = "Count" Then
+            rng2 = wkst.Range(shtName & "_GUIBNR").Resize(rowNum)
+            With nameOfRange
+                .Name = shtName & "_GUIBNR"
+                .RefersTo = rng2
+            End With
+        End If
+
         CType(rng.Columns(1), Range).FormulaArray = dateRng
 
         For i As Integer = 1 To rowNum
@@ -263,26 +296,32 @@ Public Module ProjectionFormat
 
         CType(CType(rng.Columns(3), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_curAmt))"
-        CType(rng.Columns(5), Range).FormulaArray = lastTime
-        CType(rng.Columns(6), Range).FormulaArray = defaultATA
-        CType(rng.Columns(7), Range).FormulaArray = selATA
 
-        CType(rng.Columns(8), Range).Formula = "=$C521*(E521-$D521)+$D521"
-        CType(CType(rng.Columns(8), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+        CType(rng.Columns(6), Range).FormulaArray = lastTime
+        CType(rng.Columns(7), Range).FormulaArray = defaultATA
+        CType(rng.Columns(8), Range).FormulaArray = selATA
+
+        CType(rng.Columns(9), Range).Formula =
+            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_prior_ATU+" & shtName & "_Cap"
+        CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_priorUlt))"
 
-        CType(rng.Columns(9), Range).Formula = "=$C521*(F521-$D521)+$D521"
-        CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
-            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
+        CType(rng.Columns(10), Range).Formula =
+            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
+        CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"   
 
         If shtName = "Count" Then
-            CType(rng.Columns(10), Range).Formula = "=If($K521=0,$C521*(G521-$D521)+$D521,$K521+$C521)"
-            CType(rng.Columns(10), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
+            CType(rng.Columns(11), Range).Formula =
+                "=IF(Count_GUIBNR = 0, (Count_CurAmt-Count_Cap-Count_Exlcusion)*Count_sel_ATU+Count_Cap," &
+                    "Count_CurAmt-Count_Exlcusion+Count_GUIBNR)"
+            CType(rng.Columns(11), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
         Else
-            CType(rng.Columns(10), Range).Formula = "=$C521*(G521-$D521)+$D521"
+            CType(rng.Columns(11), Range).Formula =
+                "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_sel_ATU+" & shtName & "_Cap"
         End If
 
-        CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+        CType(CType(rng.Columns(11), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
 
         With nameOfRange
@@ -402,7 +441,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(2), Range).Formula = "=Count!B521"
         CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)"
         CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)"
-        CType(rng.Columns(5), Range).Formula = "=ep/ee"
+        CType(rng.Columns(5), Range).Formula = "=ep/ee/1000"
         CType(rng.Columns(6), Range).Formula = "=VLOOKUP(accident_date,Count_Summary,column_count_summary_selULT,0)"
         CType(rng.Columns(7), Range).Formula = "=ult_counts/ee*1000"
         CType(rng.Columns(8), Range).Formula = "=VLOOKUP(accident_date,Paid_Summary,column_paid_summary_curAmt,0)"
@@ -438,7 +477,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(20), Range).Formula = "=IF(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
         CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
-        CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep*1000"
+        CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep"
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ult_counts*1000"
         CType(rng.Columns(26), Range).Formula = "=sel_ultloss/ee*1000"
         CType(rng.Columns(28), Range).Formula = "=IF(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
@@ -449,17 +488,27 @@ Public Module ProjectionFormat
         CType(rng.Columns(33), Range).Formula = "=sel_ultloss-cur_paid"
         CType(rng.Columns(39), Range).Formula = "=preIC_ultloss/ult_counts*1000"
         CType(rng.Columns(40), Range).Formula = "=preIC_ultloss/ee*1000"
-        CType(rng.Columns(41), Range).Formula = "=preIC_ultloss/ep*1000"
-        CType(rng.Columns(25), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(IC_sev, eval_group)"
-        CType(rng.Columns(27), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(IC_pp, eval_group)"
-        CType(rng.Columns(34), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(IC_lr, eval_group)"
-        CType(rng.Columns(35), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(freq, eval_group)"
-        CType(rng.Columns(36), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(avg_prem, eval_group)"
-        CType(rng.Columns(37), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(ee, eval_group)"
-        CType(rng.Columns(38), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(ep, eval_group)"
-        CType(rng.Columns(42), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(preIC_sev, eval_group)"
-        CType(rng.Columns(43), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(preIC_pp, eval_group)"
-        CType(rng.Columns(44), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray = "=getTrend(preIC_lr, eval_group)"
+        CType(rng.Columns(41), Range).Formula = "=preIC_ultloss/ep"
+        CType(rng.Columns(25), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(IC_sev, eval_group)"
+        CType(rng.Columns(27), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(IC_pp, eval_group)"
+        CType(rng.Columns(34), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(IC_lr, eval_group)"
+        CType(rng.Columns(35), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(freq, eval_group)"
+        CType(rng.Columns(36), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(avg_prem, eval_group)"
+        CType(rng.Columns(37), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(ee, eval_group)"
+        CType(rng.Columns(38), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(ep, eval_group)"
+        CType(rng.Columns(42), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(preIC_sev, eval_group)"
+        CType(rng.Columns(43), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(preIC_pp, eval_group)"
+        CType(rng.Columns(44), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(preIC_lr, eval_group)"
         With nameOfRange
             .Name = "summary"
             .RefersTo = rng
