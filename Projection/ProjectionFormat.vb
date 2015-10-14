@@ -234,7 +234,7 @@ Public Module ProjectionFormat
         Dim dateRng, dataRng, lastTime, defaultATA, selATA As String
         Dim rowNum, counter As Integer
         Dim nameOfRange As Name
-        Dim namedRangeValues As Array = System.Enum.GetValues(GetType(namedRanges))
+        Dim namedRangeValues As Array = System.Enum.GetValues(GetType(namedRangesTriangle))
 
         Application.Calculation = XlCalculation.xlCalculationManual
 
@@ -242,7 +242,7 @@ Public Module ProjectionFormat
         nameOfRange = CType(rng.Name, Name)
         rng.ClearContents()
         rng.Offset(1, 0).ClearContents() 'remove total row
-        CType(rng.Columns(10), Range).Offset(0, 1).ClearContents()
+        CType(rng.Columns(11), Range).Offset(0, 1).ClearContents()
 
         If evalGroup = "Monthly" Then
             dateRng = "=accident_date_mthly"
@@ -266,10 +266,10 @@ Public Module ProjectionFormat
         wkst.Range(shtName & "_sel_ATA").Offset(-1, 0).ClearContents()
         wkst.Range(shtName & "_sel_ATA_qtrly").Offset(-1, 0).ClearContents()
 
-        rng = rng.Resize(rowNum, 10)
+        rng = rng.Resize(rowNum, 11)
 
         'resize named ranges here
-        For Each name As namedRanges In namedRangeValues
+        For Each name As namedRangesTriangle In namedRangeValues
             nameOfRange = CType(wkst.Range(shtName & name.ToString()).Name, Name)
             rng2 = wkst.Range(shtName & name.ToString()).Resize(rowNum)
             With nameOfRange
@@ -278,7 +278,9 @@ Public Module ProjectionFormat
             End With
         Next
 
+        'For Count worksheet, there is one more named range called Count_GUIBNR
         If shtName = "Count" Then
+            nameOfRange = CType(wkst.Range("Count_GUIBNR").Name, Name)
             rng2 = wkst.Range(shtName & "_GUIBNR").Resize(rowNum)
             With nameOfRange
                 .Name = shtName & "_GUIBNR"
@@ -302,32 +304,35 @@ Public Module ProjectionFormat
         CType(rng.Columns(8), Range).FormulaArray = selATA
 
         CType(rng.Columns(9), Range).Formula =
-            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_prior_ATU+" & shtName & "_Cap"
+            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_prior_ATU+" & shtName & "_Cap"
         CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_priorUlt))"
 
         CType(rng.Columns(10), Range).Formula =
-            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
+            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
         CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"   
 
         If shtName = "Count" Then
             CType(rng.Columns(11), Range).Formula =
-                "=IF(Count_GUIBNR = 0, (Count_CurAmt-Count_Cap-Count_Exlcusion)*Count_sel_ATU+Count_Cap," &
-                    "Count_CurAmt-Count_Exlcusion+Count_GUIBNR)"
+                "=IF(Count_GUIBNR = 0, (Count_CurAmt-Count_Cap-Count_Exclusion)*Count_sel_ATU+Count_Cap," &
+                    "Count_CurAmt-Count_Exclusion+Count_GUIBNR)"
             CType(rng.Columns(11), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
         Else
             CType(rng.Columns(11), Range).Formula =
-                "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exlcusion)*" & shtName & "_sel_ATU+" & shtName & "_Cap"
+                "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_sel_ATU+" & shtName & "_Cap"
         End If
 
         CType(CType(rng.Columns(11), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
 
+        'Needs to assign nameOfRange to a range's name first
+        nameOfRange = CType(wkst.Range(shtName & "_Summary").Name, Name)
         With nameOfRange
             .Name = shtName & "_Summary"
             .RefersTo = rng
         End With
+
     End Sub
 
     Public Sub expLoss()
@@ -462,9 +467,11 @@ Public Module ProjectionFormat
 
         'letter selection column needs to be updated based on Paid/Incurred, A or H and B or G
         If projBase = "Paid" Then
-            CType(rng.Columns(17), Range).Formula = "=IF(percent_paid>0.935, ""A"", ""E"")"
+            CType(rng.Columns(17), Range).Formula =
+                "=IF(percent_paid>0.935, IF(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
         Else
-            CType(rng.Columns(17), Range).Formula = "=IF(percent_incurred>0.935, ""B"", ""E"")"
+            CType(rng.Columns(17), Range).Formula =
+                "=IF(percent_incurred>0.935, IF(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
         End If
 
         CType(rng.Columns(18), Range).Formula =
@@ -664,6 +671,11 @@ Public Module ProjectionFormat
 
     Public Sub runVBANewData()
         Application.Run("NewData")
+    End Sub
+
+    Public Sub runVBAPDF()
+        Application.Run("printPRP")
+        Application.Run("printVI")
     End Sub
 
     Public Sub finalizeGraphs()
