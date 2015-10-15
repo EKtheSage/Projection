@@ -82,7 +82,7 @@ when GU IBNR Count is only ready after you started working on the projection.'
                       imageMso ='MicrosoftVisualFoxPro'
                       screentip ='Format Q-Page'
                       supertip ='Click on this button to hide Q-page columns that 
-                      say hide in the column header.'
+say hide in the column header.'
                       onAction='RunTagMacro' tag='QPageFormat' />
             </group>
             <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>

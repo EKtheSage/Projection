@@ -37,6 +37,7 @@ Public Module ProjectionFormat
     Public evalGroup As String = CType(wkstControl.Range("eval_group").Value, String)
     Public projBase As String = CType(wkstControl.Range("proj_base").Value, String)
     Public includeSS As String = CType(wkstControl.Range("include_ss").Value, String)
+    Public coverageField As String = CType(wkstControl.Range("coverage").Value, String)
 
     Enum namedRanges
         'this enum will allow us to do range resize, will need to change numbers 
@@ -444,17 +445,17 @@ Public Module ProjectionFormat
         rng = rng.Resize(rowNum)
         CType(rng.Columns(1), Range).Formula = "=Count!A521"
         CType(rng.Columns(2), Range).Formula = "=Count!B521"
-        CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)"
+        CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
         CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)"
-        CType(rng.Columns(5), Range).Formula = "=ep/ee/1000"
+        CType(rng.Columns(5), Range).Formula = "=ep/ee*1000"
         CType(rng.Columns(6), Range).Formula = "=VLOOKUP(accident_date,Count_Summary,column_count_summary_selULT,0)"
         CType(rng.Columns(7), Range).Formula = "=ult_counts/ee*1000"
-        CType(rng.Columns(8), Range).Formula = "=VLOOKUP(accident_date,Paid_Summary,column_paid_summary_curAmt,0)"
+        CType(rng.Columns(8), Range).FormulaArray = "=Paid_CurAmt-Paid_Cap-Paid_Exclusion"
         CType(rng.Columns(9), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0),0)"
-        CType(rng.Columns(10), Range).Formula = "=IFERROR(cur_paid/percent_paid,0)"
-        CType(rng.Columns(11), Range).Formula = "=VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_curAmt,0)"
+        CType(rng.Columns(10), Range).FormulaArray = "=IFERROR(cur_paid/percent_paid,0)+Paid_Cap"
+        CType(rng.Columns(11), Range).FormulaArray = "=Incurred_CurAmt-Incurred_Cap-Incurred_Exclusion"
         CType(rng.Columns(12), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
-        CType(rng.Columns(13), Range).Formula = "=IFERROR(cur_incurred/percent_incurred,0)"
+        CType(rng.Columns(13), Range).Formula = "=IFERROR(cur_incurred/percent_incurred,0)+Incurred_Cap"
 
         CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, tbl_expLoss,2,0)"
         'remove age 1 exp loss formula
@@ -483,7 +484,10 @@ Public Module ProjectionFormat
         CType(rng.Columns(19), Range).Formula = "=preIC_ultloss+volatility"
         CType(rng.Columns(20), Range).Formula = "=IF(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
+
+        'BI needs special formula
         CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
+
         CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep"
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ult_counts*1000"
         CType(rng.Columns(26), Range).Formula = "=sel_ultloss/ee*1000"

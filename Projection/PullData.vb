@@ -89,6 +89,9 @@ Public Module PullData
             pvtTbl.ClearAllFilters()
         Next
 
+        'also resets the default ata formula to this
+        wkstControl.Range("Default_ATA").Formula = "=VLOOKUP(coverage,lookUp_coverage,5,0)"
+
     End Sub
 
     Public Sub getData()
