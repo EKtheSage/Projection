@@ -107,6 +107,7 @@ Public Module ProjectionFormat
         summary()
         expLoss()
         QPageFormat()
+        reviewTemplate()
 
         'calculate all sheets, then turn calculation back to automatic
         Application.Calculate()
@@ -454,7 +455,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(10), Range).FormulaArray = "=IFERROR(cur_paid/percent_paid,0)+Paid_Cap"
         CType(rng.Columns(11), Range).FormulaArray = "=Incurred_CurAmt-Incurred_Cap-Incurred_Exclusion"
         CType(rng.Columns(12), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
-        CType(rng.Columns(13), Range).Formula = "=IFERROR(cur_incurred/percent_incurred,0)+Incurred_Cap"
+        CType(rng.Columns(13), Range).FormulaArray = "=IFERROR(cur_incurred/percent_incurred,0)+Incurred_Cap"
 
         CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, tbl_expLoss,2,0)"
         'remove age 1 exp loss formula
@@ -540,14 +541,12 @@ Public Module ProjectionFormat
 
     End Sub
     Public Sub reviewTemplate()
-        Dim summary As Range = wkstSummary.Range("summary")
-        Dim reserves As Double
-
         Dim rowCount As Integer = wkstReviewTemplate.Range("Y1").End(XlDirection.xlDown).Row
         'clear last time's track changes
         wkstReviewTemplate.Range("Y1:AD1").Offset(1, 0).Resize(rowCount - 1, 6).ClearContents()
 
         wkstReviewTemplate.Range("RT_selATA").ClearContents()
+
         If evalGroup = "Monthly" Then
             wkstReviewTemplate.Range("RT_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA,,$A10+1)"
             wkstReviewTemplate.Range("RT_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA,,$A10+1)"
@@ -555,9 +554,14 @@ Public Module ProjectionFormat
             wkstReviewTemplate.Range("RT_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA_qtrly,,$A10+1)"
             wkstReviewTemplate.Range("RT_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA_qtrly,,$A10+1)"
         End If
+    End Sub
 
+    'this part updates prior ATA, default ATA in the reviewTemplate
+    Public Sub reviewTemplate2()
+        Dim summary As Range = wkstSummary.Range("summary")
+        Dim reserves As Double
         If projBase = "Paid" Then
-            'change paid ATU to prior first, get the reserves using prior sel
+            'change paid ATU to prior ATU first, get the reserves using prior sel
             CType(summary.Columns(9), Range).Formula =
                 "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
@@ -569,7 +573,7 @@ Public Module ProjectionFormat
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
 
-            'finally change paid ATU to selected ATU
+            'finally change paid ATU back to selected ATU
             CType(summary.Columns(9), Range).Formula =
                 "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0)"
         Else
@@ -584,9 +588,7 @@ Public Module ProjectionFormat
             CType(summary.Columns(12), Range).Formula =
                 "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0)"
         End If
-
     End Sub
-
     Public Sub finalizeATA()
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim row As Integer
@@ -594,7 +596,7 @@ Public Module ProjectionFormat
         row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
 
         'bring in the prior and default reserves in
-        reviewTemplate()
+        reviewTemplate2()
 
         Dim rng As Range
         Dim selATA As Object(,)
@@ -640,7 +642,7 @@ Public Module ProjectionFormat
 
 
         'bring in the prior and default reserves in
-        reviewTemplate()
+        reviewTemplate2()
 
         If evalGroup = "Monthly" Then
             counter = 1

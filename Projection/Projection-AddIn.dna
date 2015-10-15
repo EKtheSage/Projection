@@ -86,17 +86,17 @@ say hide in the column header.'
                       onAction='RunTagMacro' tag='QPageFormat' />
             </group>
             <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>
-              <button id='finalizeATA' label='Initial ATA to Review Template' size='large' 
+              <button id='finalizeATA' label='Initial ATA to Review Template' size='normal' 
                       imageMso ='HappyFace'
                       screentip='Update ATA Factors'
                       supertip='Click on this button to bring the first 6 ATA factors, 
-7-Ult ATU factor, overall reserves to Review Template.'
+7-Ult ATU factor, overall reserves to Review Template. You should not need to click on this button.'
                       onAction='RunTagMacro' tag='finalizeATA' />
-              <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='large' 
+              <button id='finalizeExpLoss' label='Initial Exp Loss to Review Template' size='normal' 
                       imageMso ='HappyFace'
                       screentip='Update Exp Loss'
                       supertip='Click on this button to bring the Age 1 severity, PP, LR trend, 
-and Age 1 expected loss to Review Template.'
+and Age 1 expected loss to Review Template. You should not need to click on this button.'
                       onAction='RunTagMacro' tag='finalizeExpLoss' />
               <button id='transferToSQL' label='Update Reserves' size='large' 
                       imageMso ='HappyFace'

@@ -19,8 +19,10 @@ Public Class TrackChanges
     End Sub
 
     Private Sub WorksheetDeactivate(sh As Object)
-        If CType(sh, Worksheet).Name = projBase Or CType(sh, Worksheet).Name = wkstExpLoss.Name Then
+        'this sub is supposed to allow users to not worry about clicking on buttons
+        If CType(sh, Worksheet).Name = projBase Then
             finalizeATA()
+        ElseIf CType(sh, Worksheet).Name = wkstExpLoss.Name Then
             finalizeExpLoss()
         Else
             Exit Sub
