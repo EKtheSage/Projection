@@ -107,7 +107,6 @@ Public Module ProjectionFormat
         summary()
         expLoss()
         QPageFormat()
-        reviewTemplate()
 
         'calculate all sheets, then turn calculation back to automatic
         Application.Calculate()
@@ -594,6 +593,9 @@ Public Module ProjectionFormat
         Dim dt As Date = Now
         row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
 
+        'bring in the prior and default reserves in
+        reviewTemplate()
+
         Dim rng As Range
         Dim selATA As Object(,)
 
@@ -635,6 +637,10 @@ Public Module ProjectionFormat
         Dim age1 As Object
         Dim row As Integer
         Dim dt As Date = Now
+
+
+        'bring in the prior and default reserves in
+        reviewTemplate()
 
         If evalGroup = "Monthly" Then
             counter = 1

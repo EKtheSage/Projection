@@ -107,11 +107,13 @@ Public Module ChainLadder
         For i As Integer = 0 To out.GetUpperBound(0)
             For j As Integer = 0 To out.GetUpperBound(1) - i
                 'cannot allow division by 0
+
                 If CType(triangle(i, j + 1), Double) = 0 Or CType(triangle(i, j), Double) = 0 Or
                     (CType(triangle(i, j), Double) > 0 And CType(triangle(i, j), Double) < 0.00001) Then
                     out(i, j) = 1
+                Else
+                    out(i, j) = Math.Round(CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double), 4)
                 End If
-                out(i, j) = Math.Round(CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double), 4)
             Next
         Next
         Return out

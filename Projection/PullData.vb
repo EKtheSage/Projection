@@ -88,10 +88,6 @@ Public Module PullData
         For Each pvtTbl As PivotTable In CType(wkstControl.PivotTables, PivotTables)
             pvtTbl.ClearAllFilters()
         Next
-
-        'also resets the default ata formula to this
-        wkstControl.Range("Default_ATA").Formula = "=VLOOKUP(coverage,lookUp_coverage,5,0)"
-
     End Sub
 
     Public Sub getData()
@@ -142,6 +138,9 @@ Public Module PullData
         End If
         projBase = CType(wkstControl.Range("proj_base").Value, String)
         evalGroup = CType(wkstControl.Range("eval_group").Value, String)
+
+        'also resets the default ata formula to this
+        wkstControl.Range("Default_ATA").Formula = "=VLOOKUP(coverage,lookUp_coverage,5,0)"
 
         getTrianglesFromSqlSvr()
         getEPEE()
