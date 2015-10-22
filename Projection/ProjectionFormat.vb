@@ -34,6 +34,7 @@ Public Module ProjectionFormat
     Public wkstData As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Data"), Worksheet)
     Public wkstIBNRCnt As Worksheet = CType(Application.ActiveWorkbook.Worksheets("GU IBNR Count"), Worksheet)
     Public wkstClsdAvg As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Closed Avg"), Worksheet)
+    Public wkstClsMod As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Closure Model"), Worksheet)
     Public evalGroup As String = CType(wkstControl.Range("eval_group").Value, String)
     Public projBase As String = CType(wkstControl.Range("proj_base").Value, String)
     Public includeSS As String = CType(wkstControl.Range("include_ss").Value, String)
@@ -61,6 +62,7 @@ Public Module ProjectionFormat
         letter = 17
         preIC_ultloss = 18
         IC_ultloss = 19
+        wtd_ultloss = 21
         sel_ultloss = 22
         IC_lr = 23
         IC_sev = 24
@@ -117,6 +119,8 @@ Public Module ProjectionFormat
         graphsUpdate("Exp Loss")
         graphsUpdate("Review Template")
 
+        'remove closure model monthly spread first. need to think about quarterly spread...
+        wkstClsMod.Range("clos_mod_spr_monthly").ClearContents()
         CType(Application.Worksheets(projBase), Worksheet).Activate()
 
     End Sub
@@ -350,6 +354,11 @@ Public Module ProjectionFormat
             counter = 4
         End If
 
+        'default formula for trended off of values.
+        wkstExpLoss.Range("O3").Formula = "=Index(summary, MATCH(lookup_age + 12, age, 0), column_preIC_sev)"
+        wkstExpLoss.Range("O6").Formula = "=Index(summary, MATCH(lookup_age + 12, age, 0), column_preIC_pp)"
+        wkstExpLoss.Range("O9").Formula = "=Index(summary, MATCH(lookup_age + 12, age, 0), column_preIC_lr)"
+
         For Each tbl As ListObject In wkstExpLoss.ListObjects
             rng = tbl.DataBodyRange.Resize(1) 'stores rng as the first row of the table
             tbl.DataBodyRange.Offset(1, 0).ClearContents() 'delete contents in all but first row
@@ -374,6 +383,7 @@ Public Module ProjectionFormat
             min = Double.MaxValue
             max = Double.MinValue
 
+            'exclude month/quarter column
             For Each c As Range In tbl.DataBodyRange.Offset(0, 1).Resize(, 5)
                 If CType(c.Value, Double) > 0 Then
                     min = Math.Min(min, CType(c.Value, Double))
@@ -387,9 +397,12 @@ Public Module ProjectionFormat
             ElseIf max < 1000 And max > 100 Then
                 max = UDFRoundUp(max, 10)
                 min = UDFRoundDown(min, 10)
-            ElseIf max < 100 And max > 2 Then
+            ElseIf max < 100 And max > 10 Then
                 max = UDFRoundUp(max, 1)
                 min = UDFRoundDown(min, 1)
+            ElseIf max < 10 And max > 2 Then
+                max = UDFRoundUp(max, 0.1)
+                min = UDFRoundDown(min, 0.1)
             ElseIf max < 2 And max > 0 Then
                 max = UDFRoundUp(max, 0.01)
                 min = UDFRoundDown(min, 0.01)
@@ -445,8 +458,15 @@ Public Module ProjectionFormat
         rng = rng.Resize(rowNum)
         CType(rng.Columns(1), Range).Formula = "=Count!A521"
         CType(rng.Columns(2), Range).Formula = "=Count!B521"
-        CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
-        CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)"
+
+        If evalGroup = "Monthly" Then
+            CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
+            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)"
+        Else
+            CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000"
+            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)"
+        End If
+
         CType(rng.Columns(5), Range).Formula = "=ep/ee*1000"
         CType(rng.Columns(6), Range).Formula = "=VLOOKUP(accident_date,Count_Summary,column_count_summary_selULT,0)"
         CType(rng.Columns(7), Range).Formula = "=ult_counts/ee*1000"
@@ -469,29 +489,36 @@ Public Module ProjectionFormat
         'letter selection column needs to be updated based on Paid/Incurred, A or H and B or G
         If projBase = "Paid" Then
             CType(rng.Columns(17), Range).Formula =
-                "=IF(percent_paid>0.935, IF(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
+                "=If(percent_paid>0.935, If(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
         Else
             CType(rng.Columns(17), Range).Formula =
-                "=IF(percent_incurred>0.935, IF(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
+                "=If(percent_incurred>0.935, If(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
         End If
 
         CType(rng.Columns(18), Range).Formula =
-            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,VLOOKUP(accident_date,tbl_expLoss,5,0))"
+            "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred," &
+            "ult_incurred,exp_loss,VLOOKUP(accident_date,tbl_expLoss,5,0))"
         'age 1 exp loss doesn't use prior loss
         CType(rng.Columns(18), Range).End(XlDirection.xlDown).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
 
         CType(rng.Columns(19), Range).Formula = "=preIC_ultloss+volatility"
-        CType(rng.Columns(20), Range).Formula = "=IF(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
+        CType(rng.Columns(20), Range).Formula = "=If(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
 
         'BI needs special formula
-        CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
+        If coverageField = "BI" Then
+            CType(rng.Columns(22), Range).Formula =
+                "=If(YEAR(accident_date)<2007,ult_incurred,MAX(INDEX(cur_incurred,ROW()-1,1),INDEX(wtd_ultloss,ROW()-1,1)))"
+        Else
+            CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
+        End If
+
 
         CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep"
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ult_counts*1000"
         CType(rng.Columns(26), Range).Formula = "=sel_ultloss/ee*1000"
-        CType(rng.Columns(28), Range).Formula = "=IF(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
+        CType(rng.Columns(28), Range).Formula = "=If(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
         CType(rng.Columns(29), Range).Formula = "=sel_volatility*preIC_res_spr"
         CType(rng.Columns(30), Range).Formula = "=preIC_ultloss-cur_paid"
         CType(rng.Columns(31), Range).Formula = "=cur_incurred-cur_paid"

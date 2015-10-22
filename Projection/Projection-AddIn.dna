@@ -71,7 +71,7 @@ when GU IBNR Count is only ready after you started working on the projection.'
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='showQuarterlyTriangles' />
               <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
-                      imageMso ='HappyFace'
+                      imageMso ='ShapeHeart'
                       onAction='RunTagMacro' tag='showDefaultTriangleView' />
               <button id='finalizeGraphs' label='Update the Graphs' size='large' 
                       imageMso ='MicrosoftVisualFoxPro'
@@ -99,7 +99,7 @@ say hide in the column header.'
 and Age 1 expected loss to Review Template. You should not need to click on this button.'
                       onAction='RunTagMacro' tag='finalizeExpLoss' />
               <button id='transferToSQL' label='Update Reserves' size='large' 
-                      imageMso ='HappyFace'
+                      imageMso ='ShapeStar'
                       screentip ='Update Reserves'
                       supertip ='Click on this button whenever you made a change to the reserves, 
 it will update data on SQL Server and bring in the updated data into Q-page and Review Template.'
