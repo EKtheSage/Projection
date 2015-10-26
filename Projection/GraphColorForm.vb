@@ -282,7 +282,7 @@ Public Class frmLineColor
                "allow for clearer identification between different data groups." & vbCrLf &
                "1. Sequential(seq-n) schemes are suited to ordered data that progress from low to high. " &
                "Lightness steps dominate the look of these schemes, with light colors for low data " &
-               "values to dark colors for high data values." & & vbCrLf &
+               "values to dark colors for high data values." & vbCrLf &
                "2. Diverging(div-n) schemes put equal emphasis on mid-range critical values and " &
                "extremes at both ends of the data range. The critical class Or break in the " &
                "middle of the legend Is emphasized with light colors And low And high extremes " &
