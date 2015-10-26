@@ -8,6 +8,11 @@ Public Class TestRibbon
 
     Private ctp As CustomTaskPane
 
+    Public Sub adjustGraphLineColors()
+        Dim colorForm As frmLineColor = New frmLineColor
+        colorForm.Show()
+    End Sub
+
     Public Shared Sub ctp_VisibleStateChange(ctp As CustomTaskPane)
         MsgBox("Visibility changed to " & ctp.Visible)
     End Sub

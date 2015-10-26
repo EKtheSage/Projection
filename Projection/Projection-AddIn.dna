@@ -73,11 +73,14 @@ when GU IBNR Count is only ready after you started working on the projection.'
               <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
                       imageMso ='ShapeHeart'
                       onAction='RunTagMacro' tag='showDefaultTriangleView' />
-              <button id='finalizeGraphs' label='Update the Graphs' size='large' 
+              <button id='finalizeGraphs' label='Update Graphs Y-Axis' size='large' 
                       imageMso ='MicrosoftVisualFoxPro'
                       screentip ='Update the Graphs'
                       supertip ='Click on this button to show proper y-axis on the graphs.'
                       onAction='RunTagMacro' tag='finalizeGraphs' />
+              <button id='adjustGraphLineColors' label='Adjust Graph Line Colors' size='large'
+                      imageMso ='A'
+                      onAction='RunTagMacro' tag='adjustGraphLineColors' />
               <button id='finalizeQPage' label='Format QPage' size='large' 
                       imageMso ='MicrosoftVisualFoxPro'
                       screentip ='Format Q-Page'
@@ -109,7 +112,7 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
                       screentip ='Print PDF'
                       supertip ='Click on this button to print PDFs to current folder and VI'
                       onAction='RunTagMacro' tag='runVBAPDF' />
-            </group>          
+            </group>
           </tab>
         </tabs>
       </ribbon>

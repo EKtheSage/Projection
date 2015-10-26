@@ -54,6 +54,9 @@
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="SASInterop">
       <HintPath>..\References\SASInterop.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -86,6 +89,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChainLadder.vb" />
+    <Compile Include="GraphColorForm.Designer.vb">
+      <DependentUpon>GraphColorForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="GraphColorForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmLogin.Designer.vb">
       <DependentUpon>frmLogin.vb</DependentUpon>
     </Compile>
@@ -121,6 +130,9 @@
     <Compile Include="Triangle.vb" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GraphColorForm.resx">
+      <DependentUpon>GraphColorForm.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FactorSelectionPane.resx">
       <DependentUpon>FactorSelectionPane.vb</DependentUpon>
     </EmbeddedResource>
@@ -159,15 +171,6 @@
       <VersionMinor>1</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="Microsoft.Office.Core">
-      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>5</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>

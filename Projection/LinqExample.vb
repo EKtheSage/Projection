@@ -87,6 +87,7 @@ Public Class ArtistViewModel
     End Property
 End Class
 Public Module LinqExample
+
     Private Function getMusicalArtists() As List(Of MusicalArtist)
         Return New List(Of MusicalArtist) From {
                         New MusicalArtist() With {

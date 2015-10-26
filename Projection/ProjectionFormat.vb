@@ -574,6 +574,14 @@ Public Module ProjectionFormat
 
         wkstReviewTemplate.Range("RT_selATA").ClearContents()
 
+        'update 7-ult ATU
+        CType(wkstReviewTemplate.Cells(9, 3), Range).Formula =
+                "=INDEX(" & projBase & "_Summary,ROWS(" & projBase & "_Summary)-$A9,column_" & projBase & "_summary_priorATU)"
+        CType(wkstReviewTemplate.Cells(9, 4), Range).Formula =
+                "=INDEX(" & projBase & "_Summary,ROWS(" & projBase & "_Summary)-$A9,column_" & projBase & "_summary_defaultATU)"
+        CType(wkstReviewTemplate.Cells(9, 6), Range).Formula =
+                "=INDEX(" & projBase & "_Summary,ROWS(" & projBase & "_Summary)-$A9,column_" & projBase & "_summary_selATU)"
+        'update 1-6 ATA
         If evalGroup = "Monthly" Then
             wkstReviewTemplate.Range("RT_priorATA").Formula = "=INDEX(" & projBase & "_lastTime_ATA,,$A10+1)"
             wkstReviewTemplate.Range("RT_defaultATA").Formula = "=INDEX(" & projBase & "_default_ATA,,$A10+1)"
@@ -590,30 +598,30 @@ Public Module ProjectionFormat
         If projBase = "Paid" Then
             'change paid ATU to prior ATU first, get the reserves using prior sel
             CType(summary.Columns(9), Range).Formula =
-                "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("C16").Value = reserves
 
             'change paid ATU to default ATU, get the reserves with default sel
             CType(summary.Columns(9), Range).Formula =
-                "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_defaultATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_defaultATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
 
             'finally change paid ATU back to selected ATU
             CType(summary.Columns(9), Range).Formula =
-                "=1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0),0)"
         Else
             CType(summary.Columns(12), Range).Formula =
-                "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_priorATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_priorATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("C16").Value = reserves
             CType(summary.Columns(12), Range).Formula =
-                "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_defaultATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_defaultATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
             CType(summary.Columns(12), Range).Formula =
-                "=1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0)"
+                "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
         End If
     End Sub
     Public Sub finalizeATA()
