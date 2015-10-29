@@ -279,15 +279,15 @@ Public Class frmLineColor
     Private Sub btnAbout_Click(sender As Object, e As EventArgs) Handles btnAbout.Click
         MsgBox("This is an implementation of ColorBrewer. Credit goes to Cynthia Brewer who created the color themes. " &
                "Visit colorbrewer2.org for more information. The color options " &
-               "allow for clearer identification between different data groups." & vbCrLf &
-               "1. Sequential(seq-n) schemes are suited to ordered data that progress from low to high. " &
+               "allow for clearer identification between different data groups." & vbCrLf & vbCrLf &
+               "1. Sequential (seq-n) schemes are suited to ordered data that progress from low to high. " &
                "Lightness steps dominate the look of these schemes, with light colors for low data " &
-               "values to dark colors for high data values." & vbCrLf &
-               "2. Diverging(div-n) schemes put equal emphasis on mid-range critical values and " &
+               "values to dark colors for high data values." & vbCrLf & vbCrLf &
+               "2. Diverging (div-n) schemes put equal emphasis on mid-range critical values and " &
                "extremes at both ends of the data range. The critical class Or break in the " &
                "middle of the legend Is emphasized with light colors And low And high extremes " &
-               "are emphasized with dark colors that have contrasting hues." & vbCrLf &
-               "3.Qualitative(qual-n) schemes Do Not imply magnitude differences between legend classes, " &
+               "are emphasized with dark colors that have contrasting hues." & vbCrLf & vbCrLf &
+               "3.Qualitative (qual-n) schemes Do Not imply magnitude differences between legend classes, " &
                "And hues are used to create the primary visual differences between classes. " &
                "Qualitative schemes are best suited to representing nominal Or categorical data.", Title:="Color Guide")
     End Sub

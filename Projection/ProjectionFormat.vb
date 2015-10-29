@@ -247,7 +247,6 @@ Public Module ProjectionFormat
         nameOfRange = CType(rng.Name, Name)
         rng.ClearContents()
         rng.Offset(1, 0).ClearContents() 'remove total row
-        CType(rng.Columns(11), Range).Offset(0, 1).ClearContents()
 
         If evalGroup = "Monthly" Then
             dateRng = "=accident_date_mthly"
@@ -271,8 +270,6 @@ Public Module ProjectionFormat
         wkst.Range(shtName & "_sel_ATA").Offset(-1, 0).ClearContents()
         wkst.Range(shtName & "_sel_ATA_qtrly").Offset(-1, 0).ClearContents()
 
-        rng = rng.Resize(rowNum, 11)
-
         'resize named ranges here
         For Each name As namedRangesTriangle In namedRangeValues
             nameOfRange = CType(wkst.Range(shtName & name.ToString()).Name, Name)
@@ -284,6 +281,7 @@ Public Module ProjectionFormat
         Next
 
         'For Count worksheet, there is one more named range called Count_GUIBNR
+        'Also, resize the summary to monthly or quarterly based on rowNum
         If shtName = "Count" Then
             nameOfRange = CType(wkst.Range("Count_GUIBNR").Name, Name)
             rng2 = wkst.Range(shtName & "_GUIBNR").Resize(rowNum)
@@ -291,6 +289,11 @@ Public Module ProjectionFormat
                 .Name = shtName & "_GUIBNR"
                 .RefersTo = rng2
             End With
+
+            CType(rng.Columns(9), Range).Offset(0, 1).ClearContents()
+            rng = rng.Resize(rowNum, 9)
+        Else
+            rng = rng.Resize(rowNum, 11)
         End If
 
         CType(rng.Columns(1), Range).FormulaArray = dateRng
@@ -301,35 +304,45 @@ Public Module ProjectionFormat
             CType(rng.Cells(i, 3), Range).Value = CType(wkst.Range(dataRng).Cells(i, rowNum - i + 1), Range).Value
         Next
 
+        'add formula for total at bottom of range
         CType(CType(rng.Columns(3), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_curAmt))"
-
-        CType(rng.Columns(6), Range).FormulaArray = lastTime
-        CType(rng.Columns(7), Range).FormulaArray = defaultATA
-        CType(rng.Columns(8), Range).FormulaArray = selATA
-
-        CType(rng.Columns(9), Range).Formula =
-            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_prior_ATU+" & shtName & "_Cap"
-        CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
-            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_priorUlt))"
-
-        CType(rng.Columns(10), Range).Formula =
-            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
-        CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
-            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"   
+        CType(CType(rng.Columns(4), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_summary_cap))"
+        CType(CType(rng.Columns(5), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_summary_exclusion))"
 
         If shtName = "Count" Then
-            CType(rng.Columns(11), Range).Formula =
+            CType(rng.Columns(6), Range).FormulaArray = defaultATA
+            CType(rng.Columns(7), Range).FormulaArray = selATA
+            CType(rng.Columns(8), Range).Formula =
+                "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
+            CType(CType(rng.Columns(8), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+                "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
+            CType(rng.Columns(9), Range).Formula =
                 "=IF(Count_GUIBNR = 0, (Count_CurAmt-Count_Cap-Count_Exclusion)*Count_sel_ATU+Count_Cap," &
                     "Count_CurAmt-Count_Exclusion+Count_GUIBNR)"
-            CType(rng.Columns(11), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
+            CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
+            CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
         Else
+            CType(rng.Columns(6), Range).FormulaArray = lastTime
+            CType(rng.Columns(7), Range).FormulaArray = defaultATA
+            CType(rng.Columns(8), Range).FormulaArray = selATA
+            CType(rng.Columns(9), Range).Formula =
+            "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_prior_ATU+" & shtName & "_Cap"
+            CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+                "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_priorUlt))"
+
+            CType(rng.Columns(10), Range).Formula =
+                "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_default_ATU+" & shtName & "_Cap"
+            CType(CType(rng.Columns(10), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+                "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
             CType(rng.Columns(11), Range).Formula =
                 "=(" & shtName & "_CurAmt-" & shtName & "_Cap-" & shtName & "_Exclusion)*" & shtName & "_sel_ATU+" & shtName & "_Cap"
-        End If
-
-        CType(CType(rng.Columns(11), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+            CType(CType(rng.Columns(11), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
+        End If
 
         'Needs to assign nameOfRange to a range's name first
         nameOfRange = CType(wkst.Range(shtName & "_Summary").Name, Name)
@@ -730,29 +743,23 @@ Public Module ProjectionFormat
         graphsUpdate("Review Template")
     End Sub
 
-    Public Function sumRange(ByVal rngToSum As Object(,)) As Double
+    Public Sub inputReviewTemplate()
+        finalizeATA()
+        finalizeExpLoss()
+    End Sub
+
+    Public Sub adjustGraphLineColors()
+        Dim colorForm As frmLineColor = New frmLineColor
+        colorForm.Show()
+    End Sub
+
+    Private Function sumRange(ByVal rngToSum As Object(,)) As Double
         Dim out As Double = 0
         For i As Integer = 1 To rngToSum.GetUpperBound(0)
             out = out + CType(rngToSum(i, 1), Double)
         Next
         Return out
     End Function
-
-    Public Sub highlightBorderTriangle()
-        Dim wkst As Worksheet
-        Dim rng As Range
-
-        For Each wkst In Application.ActiveWorkbook.Worksheets
-            If wkst.Name = "Count" Or wkst.Name = "Paid" Or wkst.Name = "Incurred" Then
-                rng = wkst.Range(wkst.Name & "_data")
-                For i As Integer = 1 To rng.Rows.Count
-                    For j As Integer = 1 To rng.Columns.Count
-
-                    Next
-                Next
-            End If
-        Next
-    End Sub
 
     'A simple function to convert dates to quarterly dates (not very elegant...)
     Public Function convertDate(ByVal month As Integer, ByVal year As Integer, ByVal currentDate As Date) As Date
