@@ -261,6 +261,7 @@ Public Class frmLineColor
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet)
         Dim red, green, blue As Integer
         For Each chartObj As ChartObject In CType(wkst.ChartObjects, ChartObjects)
+            MsgBox(chartObj.Chart.Name)
             For i = 1 To 5
                 With CType(chartObj.Chart.SeriesCollection(i), Series)
                     red = Integer.Parse(Controls("lblYear" & i & "RGB").Text.Split(New Char() {","c})(0))

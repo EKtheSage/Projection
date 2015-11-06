@@ -290,6 +290,7 @@ Public Module ProjectionFormat
             End With
 
             CType(rng.Columns(9), Range).Offset(0, 1).ClearContents()
+            CType(CType(rng.Columns(9), Range).Offset(0, 1).Cells(rowNum, 1), Range).Offset(1, 0).ClearContents()
             rng = rng.Resize(rowNum, 9)
         Else
             rng = rng.Resize(rowNum, 11)
@@ -319,11 +320,13 @@ Public Module ProjectionFormat
             CType(CType(rng.Columns(8), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
                 "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
             CType(rng.Columns(9), Range).Formula =
-                "=IF(Count_GUIBNR = 0, (Count_CurAmt-Count_Cap-Count_Exclusion)*Count_sel_ATU+Count_Cap," &
+                "=IF(Count_GUIBNR = 0, Count_CurAmt-Count_Exclusion," &
                     "Count_CurAmt-Count_Exclusion+Count_GUIBNR)"
             CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
             CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
+            CType(CType(rng.Columns(9), Range).Offset(0, 1).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
+                "=SUM(Count_GUIBNR)"
         Else
             CType(rng.Columns(6), Range).FormulaArray = lastTime
             CType(rng.Columns(7), Range).FormulaArray = defaultATA
@@ -386,8 +389,11 @@ Public Module ProjectionFormat
 
     Public Sub graphsUpdate(wkstName As String)
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet)
+
         For Each chartObj As ChartObject In CType(wkst.ChartObjects, ChartObjects)
-            Dim sheetName As String = "Exp Loss"
+            'charobject.chart.name is tricky -- it will show the activesheet's name 
+            'in front of the chart name
+            Dim sheetName As String = CType(Application.ActiveSheet, Worksheet).Name
             Dim chartName As String = chartObj.Chart.Name.Substring(Len(sheetName) + 1)
             Dim tbl As ListObject = wkstExpLoss.ListObjects("tbl_" & chartName)
             Dim min, max, majorUnit As Double
