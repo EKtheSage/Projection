@@ -22,7 +22,8 @@ Public Class Triangle
         ATA = New Double(data.GetUpperBound(0) - 1, data.GetUpperBound(1) - 1) {}
         For i As Integer = 0 To ATA.GetUpperBound(0)
             For j As Integer = 0 To ATA.GetUpperBound(1) - i
-                ATA(i, j) = Math.Round(data(i, j + 1) / data(i, j), 4)
+                ATA(i, j) = Math.Round(data(i, j + 1) / data(i, j),
+                                       4, MidpointRounding.AwayFromZero)
             Next
         Next
 

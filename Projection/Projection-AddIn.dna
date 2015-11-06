@@ -62,7 +62,7 @@ when GU IBNR Count is only ready after you started working on the projection.'
             </group>
             <group id='TemplateFormatGroup' label='Format Worksheets'>
               <button id='showAllTriangles' label='Show All Triangles' size='normal' 
-                      imageMso ='MagicEightBall'
+                      imageMso ='ShapeHeart'
                       onAction='RunTagMacro' tag='showAllTriangles' />
               <button id='showMonthlyTriangles' label='Show Monthly Triangles' size='normal' 
                       imageMso ='MicrosoftVisualFoxPro'
@@ -71,15 +71,15 @@ when GU IBNR Count is only ready after you started working on the projection.'
                       imageMso ='HappyFace'
                       onAction='RunTagMacro' tag='showQuarterlyTriangles' />
               <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
-                      imageMso ='ShapeHeart'
+                      imageMso ='BlogHomePage'
                       onAction='RunTagMacro' tag='showDefaultTriangleView' />
               <button id='finalizeGraphs' label='Update Graphs Y-Axis' size='large' 
-                      imageMso ='MicrosoftVisualFoxPro'
+                      imageMso ='PictureBrightnessGallery'
                       screentip ='Update the Graphs'
                       supertip ='Click on this button to show proper y-axis on the graphs.'
                       onAction='RunTagMacro' tag='finalizeGraphs' />
               <button id='adjustGraphLineColors' label='Adjust Graph Line Colors' size='large'
-                      imageMso ='A'
+                      imageMso ='InkLineColorPicker'
                       onAction='RunTagMacro' tag='adjustGraphLineColors' />
               <button id='finalizeQPage' label='Format QPage' size='large' 
                       imageMso ='MicrosoftVisualFoxPro'
@@ -90,22 +90,27 @@ say hide in the column header.'
             </group>
             <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>
               <button id='inputReviewTemplate' label='Update Review Template' size='large' 
-                      imageMso ='HappyFace'
+                      imageMso ='AutoDial'
                       screentip='Update Review Template'
                       supertip='Click on this button to bring the first 6 ATA factors, 
 7-Ult ATU factor, selected Age 1 expected loss, trends, overall reserves to Review Template'
                       onAction='RunTagMacro' tag='inputReviewTemplate' />
               <button id='transferToSQL' label='Update Reserves' size='large' 
-                      imageMso ='ShapeStar'
+                      imageMso ='AnimationGallery'
                       screentip ='Update Reserves'
                       supertip ='Click on this button whenever you made a change to the reserves, 
 it will update data on SQL Server and bring in the updated data into Q-page and Review Template.'
                       onAction='RunTagMacro' tag='runVBANewData' />
-              <button id='printPDF' label='Print PDF' size='large' 
-                      imageMso ='HappyFace'
-                      screentip ='Print PDF'
-                      supertip ='Click on this button to print PDFs to current folder and VI'
-                      onAction='RunTagMacro' tag='runVBAPDF' />
+              <button id='printPRP' label='Print PDF for PRP' size='large' 
+                      imageMso ='FilePrintQuick'
+                      screentip ='Print PDF for PRP'
+                      supertip ='Click on this button to print PDFs for PRP'
+                      onAction='RunTagMacro' tag='runVBAPrintPRP' />
+              <button id='printVI' label='Print PDF to VI' size='large' 
+                      imageMso ='FilePrint'
+                      screentip ='Print PDF to VI'
+                      supertip ='Click on this button to print PDFs to VI'
+                      onAction='RunTagMacro' tag='runVBAPrintVI' />
             </group>
           </tab>
         </tabs>

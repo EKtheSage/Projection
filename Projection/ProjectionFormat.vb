@@ -75,8 +75,7 @@ Public Module ProjectionFormat
     End Enum
 
     Enum namedRangesTriangle
-        'this enum will allow us to do range resize on the triangle worksheets, will need to change numbers 
-        'whenever summary worksheet columns change
+        'this enum will allow us to do range resize on the triangle worksheets
         _CurAmt = 3
         _Cap = 4
         _Exclusion = 5
@@ -733,10 +732,14 @@ Public Module ProjectionFormat
         Application.Run("NewData")
     End Sub
 
-    Public Sub runVBAPDF()
+    Public Sub runVBAPrintPRP()
         Application.Run("printPRP")
+    End Sub
+
+    Public Sub runVBAPrintVI()
         Application.Run("printVI")
     End Sub
+
 
     Public Sub finalizeGraphs()
         graphsUpdate("Exp Loss")
