@@ -64,14 +64,14 @@ Public Module ProjectionFormat
         IC_ultloss = 19
         wtd_ultloss = 21
         sel_ultloss = 22
-        IC_lr = 23
-        IC_sev = 24
-        IC_pp = 26
-        preIC_res_spr = 28
-        preIC_res = 30
-        preIC_sev = 39
-        preIC_pp = 40
-        preIC_lr = 41
+        IC_lr = 24
+        IC_sev = 25
+        IC_pp = 27
+        preIC_res_spr = 29
+        preIC_res = 31
+        preIC_sev = 40
+        preIC_pp = 41
+        preIC_lr = 42
     End Enum
 
     Enum namedRangesTriangle
@@ -439,6 +439,7 @@ Public Module ProjectionFormat
         Next
     End Sub
     Public Sub summary()
+        'The column numbers will need to change whenever the Summary named range is changed
         Dim rng As Range
         Dim nameOfRange As Name
         Dim rowNum, offsetRows As Integer
@@ -533,37 +534,37 @@ Public Module ProjectionFormat
         End If
 
 
-        CType(rng.Columns(23), Range).Formula = "=sel_ultloss/ep"
-        CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ult_counts*1000"
-        CType(rng.Columns(26), Range).Formula = "=sel_ultloss/ee*1000"
-        CType(rng.Columns(28), Range).Formula = "=If(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
-        CType(rng.Columns(29), Range).Formula = "=sel_volatility*preIC_res_spr"
-        CType(rng.Columns(30), Range).Formula = "=preIC_ultloss-cur_paid"
-        CType(rng.Columns(31), Range).Formula = "=cur_incurred-cur_paid"
-        CType(rng.Columns(32), Range).Formula = "=sel_ultloss-cur_incurred"
-        CType(rng.Columns(33), Range).Formula = "=sel_ultloss-cur_paid"
-        CType(rng.Columns(39), Range).Formula = "=preIC_ultloss/ult_counts*1000"
-        CType(rng.Columns(40), Range).Formula = "=preIC_ultloss/ee*1000"
-        CType(rng.Columns(41), Range).Formula = "=preIC_ultloss/ep"
-        CType(rng.Columns(25), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+        CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ep"
+        CType(rng.Columns(25), Range).Formula = "=sel_ultloss/ult_counts*1000"
+        CType(rng.Columns(27), Range).Formula = "=sel_ultloss/ee*1000"
+        CType(rng.Columns(29), Range).Formula = "=If(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
+        CType(rng.Columns(30), Range).Formula = "=sel_volatility*preIC_res_spr"
+        CType(rng.Columns(31), Range).Formula = "=preIC_ultloss-cur_paid"
+        CType(rng.Columns(32), Range).Formula = "=cur_incurred-cur_paid"
+        CType(rng.Columns(33), Range).Formula = "=sel_ultloss-cur_incurred"
+        CType(rng.Columns(34), Range).Formula = "=sel_ultloss-cur_paid"
+        CType(rng.Columns(40), Range).Formula = "=preIC_ultloss/ult_counts*1000"
+        CType(rng.Columns(41), Range).Formula = "=preIC_ultloss/ee*1000"
+        CType(rng.Columns(42), Range).Formula = "=preIC_ultloss/ep"
+        CType(rng.Columns(26), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
             "=getTrend(IC_sev, eval_group)"
-        CType(rng.Columns(27), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+        CType(rng.Columns(28), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
             "=getTrend(IC_pp, eval_group)"
-        CType(rng.Columns(34), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(IC_lr, eval_group)"
         CType(rng.Columns(35), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(freq, eval_group)"
+            "=getTrend(IC_lr, eval_group)"
         CType(rng.Columns(36), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(avg_prem, eval_group)"
+            "=getTrend(freq, eval_group)"
         CType(rng.Columns(37), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(ee, eval_group)"
+            "=getTrend(avg_prem, eval_group)"
         CType(rng.Columns(38), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(ee, eval_group)"
+        CType(rng.Columns(39), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
             "=getTrend(ep, eval_group)"
-        CType(rng.Columns(42), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(preIC_sev, eval_group)"
         CType(rng.Columns(43), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
-            "=getTrend(preIC_pp, eval_group)"
+            "=getTrend(preIC_sev, eval_group)"
         CType(rng.Columns(44), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
+            "=getTrend(preIC_pp, eval_group)"
+        CType(rng.Columns(45), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
             "=getTrend(preIC_lr, eval_group)"
         With nameOfRange
             .Name = "summary"
