@@ -235,6 +235,7 @@ Public Module ChainLadder
                 nextAge = nextAge + CType(triangle(i, j + 1), Double)
             Next
 
+            'force ATA to 1 if it's less than 1
             If nextAge < thisAge Then
                 out(j) = 1
             Else
@@ -273,6 +274,7 @@ Public Module ChainLadder
 
             ATASum = Decimal.Round(CType(ATASum, Decimal), 4, MidpointRounding.AwayFromZero)
 
+            'force ATA to 1 if it's less than 1
             If ATASum < (numPt - counter) Then
                 out(j) = 1
             Else

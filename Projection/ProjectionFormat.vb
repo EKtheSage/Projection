@@ -255,6 +255,24 @@ Public Module ProjectionFormat
             selATA = "=ATU(" & shtName & "_sel_ATA)"
             rowNum = monthRowNum
             counter = 1
+            'adding accident date comments above age cells
+            For i = 1 To 179
+                Dim temp As String
+                temp = CType(CType(wkstCount.Range("accident_date_mthly").Cells(181 - i, 1), Range).Value, String)
+                With CType(wkst.Cells(364, i + 1), Range)
+                    .ClearComments()
+                    .AddComment("")
+                    .Comment.Text(Text:=temp)
+                    .Comment.Visible = False
+                    .Comment.Shape.AutoShapeType = MsoAutoShapeType.msoShapeRoundedRectangle
+                    .Comment.Shape.Fill.PresetGradient(MsoGradientStyle.msoGradientHorizontal,
+                                                       1,
+                                                       MsoPresetGradientType.msoGradientCalmWater)
+                    .Comment.Shape.TextFrame.Characters.Font.Name = "Calibri"
+                    .Comment.Shape.TextFrame.Characters.Font.Bold = True
+                    .Comment.Shape.TextFrame.Characters.Font.Size = 12
+                End With
+            Next
         Else
             dateRng = "=accident_date_qtrly"
             dataRng = shtName & "_qtrlydata"
@@ -263,6 +281,24 @@ Public Module ProjectionFormat
             selATA = "=ATU(" & shtName & "_sel_ATA_qtrly)"
             rowNum = quarterRowNum
             counter = 3
+
+            For i = 1 To 59
+                Dim temp As String
+                temp = CType(CType(wkstCount.Range("accident_date_qtrly").Cells(61 - i, 1), Range).Value, String)
+                With CType(wkst.Cells(503, i + 1), Range)
+                    .ClearComments()
+                    .AddComment("")
+                    .Comment.Text(Text:=temp)
+                    .Comment.Visible = False
+                    .Comment.Shape.AutoShapeType = MsoAutoShapeType.msoShapeRoundedRectangle
+                    .Comment.Shape.Fill.PresetGradient(MsoGradientStyle.msoGradientHorizontal,
+                                                       1,
+                                                       MsoPresetGradientType.msoGradientCalmWater)
+                    .Comment.Shape.TextFrame.Characters.Font.Name = "Calibri"
+                    .Comment.Shape.TextFrame.Characters.Font.Bold = True
+                    .Comment.Shape.TextFrame.Characters.Font.Size = 12
+                End With
+            Next
         End If
 
         'remove selections
@@ -496,8 +532,8 @@ Public Module ProjectionFormat
         CType(rng.Columns(12), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
         CType(rng.Columns(13), Range).FormulaArray = "=IFERROR(cur_incurred/percent_incurred,0)+Incurred_Cap"
 
-        CType(rng.Columns(14), Range).Formula = "=VLOOKUP(accident_date, tbl_expLoss,2,0)"
         'remove age 1 exp loss formula
+        CType(rng.Columns(14), Range).Formula = "=INDEX(tbl_expLoss[exp_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1)"
         CType(rng.Columns(14), Range).End(XlDirection.xlDown).ClearContents()
 
         CType(rng.Columns(15), Range).Formula =
@@ -533,6 +569,10 @@ Public Module ProjectionFormat
             CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
         End If
 
+        'Development over prior, age 1 is blank
+        CType(rng.Columns(23), Range).Formula =
+            "=sel_ultloss-INDEX(tbl_expLoss[sel_ult_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1)"
+        CType(rng.Columns(23), Range).End(XlDirection.xlDown).ClearContents()
 
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ep"
         CType(rng.Columns(25), Range).Formula = "=sel_ultloss/ult_counts*1000"
