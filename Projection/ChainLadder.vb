@@ -34,49 +34,49 @@ Public Module ChainLadder
 
         Select Case letter
             Case "A"
-                ultLoss = Math.Round(ultPaid, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(ultPaid, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "B"
-                ultLoss = Math.Round(ultInc, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(ultInc, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "C"
-                ultLoss = Math.Round((2 * ultInc + ultPaid) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((2 * ultInc + ultPaid) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "D"
-                ultLoss = Math.Round((ultInc + 2 * ultPaid) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((ultInc + 2 * ultPaid) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "E"
-                ultLoss = Math.Round(bf, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(bf, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "F"
-                ultLoss = Math.Round(priorSel, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(priorSel, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "G"
-                ultLoss = Math.Round((ultPaid + ultInc) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((ultPaid + ultInc) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "H"
-                ultLoss = Math.Round(curInc, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(curInc, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "I"
-                ultLoss = Math.Round((priorSel + ultPaid) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((priorSel + ultPaid) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "J"
-                ultLoss = Math.Round((priorSel + ultInc) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((priorSel + ultInc) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "K"
-                ultLoss = Math.Round((priorSel + 2 * ultInc) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((priorSel + 2 * ultInc) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "L"
-                ultLoss = Math.Round((priorSel + bf) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((priorSel + bf) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "M"
-                ultLoss = Math.Round((priorSel + 2 * bf) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((priorSel + 2 * bf) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "P"
-                ultLoss = Math.Round((2 * priorSel + bf) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((2 * priorSel + bf) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "Q"
-                ultLoss = Math.Round((3 * priorSel + bf) / 4, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((3 * priorSel + bf) / 4, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "S"
-                ultLoss = Math.Round(gb, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(gb, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "U"
-                ultLoss = Math.Round(expLoss, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType(expLoss, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "V"
-                ultLoss = Math.Round((expLoss + bf) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((expLoss + bf) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "W"
-                ultLoss = Math.Round((ultInc + bf) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((ultInc + bf) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "X"
-                ultLoss = Math.Round((ultPaid + bf) / 2, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((ultPaid + bf) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "Y"
-                ultLoss = Math.Round((2 * priorSel + ultInc) / 3, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((2 * priorSel + ultInc) / 3, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "Z"
-                ultLoss = Math.Round((9 * ultInc + ultPaid) / 10, 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((9 * ultInc + ultPaid) / 10, Decimal), 6, MidpointRounding.AwayFromZero)
         End Select
 
         Return ultLoss
@@ -112,8 +112,8 @@ Public Module ChainLadder
                     (CType(triangle(i, j), Double) > 0 And CType(triangle(i, j), Double) < 0.00001) Then
                     out(i, j) = 1
                 Else
-                    out(i, j) = Math.Round(
-                        CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double),
+                    out(i, j) = Decimal.Round(
+                        CType(CType(triangle(i, j + 1), Double) / CType(triangle(i, j), Double), Decimal),
                         4, MidpointRounding.AwayFromZero)
                 End If
             Next
@@ -127,7 +127,7 @@ Public Module ChainLadder
         Dim out2(ATA.GetUpperBound(0) + 1, 0) As Double
         out(out.GetUpperBound(0), 0) = 1
         For i As Integer = out.GetUpperBound(0) To 1 Step -1
-            out(i - 1, 0) = Math.Round(out(i, 0) * CType(ATA(i - 1), Double),
+            out(i - 1, 0) = Decimal.Round(CType(out(i, 0) * CType(ATA(i - 1), Double), Decimal),
                                        4, MidpointRounding.AwayFromZero)
         Next
 
@@ -238,7 +238,7 @@ Public Module ChainLadder
             If nextAge < thisAge Then
                 out(j) = 1
             Else
-                out(j) = Math.Round(nextAge / thisAge, 4, MidpointRounding.AwayFromZero)
+                out(j) = Decimal.Round(CType(nextAge / thisAge, Decimal), 4, MidpointRounding.AwayFromZero)
             End If
         Next
         Return out
@@ -271,10 +271,12 @@ Public Module ChainLadder
                 ATASum = ATASum + ATATri(i, j)
             Next
 
+            ATASum = Decimal.Round(CType(ATASum, Decimal), 4, MidpointRounding.AwayFromZero)
+
             If ATASum < (numPt - counter) Then
                 out(j) = 1
             Else
-                out(j) = Math.Round(ATASum / (numPt - counter), 4, MidpointRounding.AwayFromZero)
+                out(j) = Decimal.Round(CType(ATASum / (numPt - counter), Decimal), 4, MidpointRounding.AwayFromZero)
             End If
         Next
         Return out
@@ -326,8 +328,8 @@ Public Module ChainLadder
             ElseIf nextAge < CType(triangle(triangle.GetUpperBound(0) - j, j), Double)
                 out(j) = 1
             Else
-                out(j) = Math.Round(
-                    nextAge / CType(triangle(triangle.GetUpperBound(0) - j, j), Double),
+                out(j) = Decimal.Round(
+                    CType(nextAge / CType(triangle(triangle.GetUpperBound(0) - j, j), Double), Decimal),
                     4, MidpointRounding.AwayFromZero)
             End If
         Next
@@ -365,11 +367,12 @@ Public Module ChainLadder
                 ATAMin = Math.Min(ATAMin, ATATri(i, j))
             Next
 
+            ATASum = Decimal.Round(CType(ATASum, Decimal), 4, MidpointRounding.AwayFromZero)
             If ATASum < (numPt - counter - 2) Then
                 out(j) = 1
             Else
-                out(j) = Math.Round(
-                    (ATASum - ATAMax - ATAMin) / (numPt - counter - 2),
+                out(j) = Decimal.Round(
+                    CType((ATASum - ATAMax - ATAMin) / (numPt - counter - 2), Decimal),
                     4, MidpointRounding.AwayFromZero)
             End If
 

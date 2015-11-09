@@ -174,8 +174,8 @@ Public Module ProjectionFormat
         Application.ScreenUpdating = False
         If wkst.Name = "Count" Or wkst.Name = "Paid" Or wkst.Name = "Incurred" Then
             CType(wkst.Rows("1:379"), Range).EntireRow.Hidden = False
-            hideRows = Application.Union(CType(wkst.Rows("2:157"), Range),
-                                         CType(wkst.Rows("184:338"), Range),
+            hideRows = Application.Union(CType(wkst.Rows("2:156"), Range),
+                                         CType(wkst.Rows("184:337"), Range),
                                          CType(wkst.Rows("380:519"), Range))
             For Each a As Range In hideRows.Areas
                 a.EntireRow.Hidden = True
@@ -190,8 +190,8 @@ Public Module ProjectionFormat
         Application.ScreenUpdating = False
         If wkst.Name = "Count" Or wkst.Name = "Paid" Or wkst.Name = "Incurred" Then
             CType(wkst.Rows("380:519"), Range).EntireRow.Hidden = False
-            hideRows = Application.Union(CType(wkst.Rows("381:416"), Range),
-                                        CType(wkst.Rows("443:477"), Range),
+            hideRows = Application.Union(CType(wkst.Rows("381:415"), Range),
+                                        CType(wkst.Rows("443:476"), Range),
                                         CType(wkst.Range("1:379"), Range))
             For Each a As Range In hideRows.Areas
                 a.EntireRow.Hidden = True
