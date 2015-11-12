@@ -1,6 +1,5 @@
 <DnaLibrary Name="Projection Add-In" RuntimeVersion="v4.0">
   <ExternalLibrary Path="Projection.dll" LoadFromBytes="true" Pack="true" />
-  <Image Name ="Star" Path="star-struck.png" Pack="true" />
   
   <!-- 
        The RuntimeVersion attribute above allows two settings:
@@ -26,25 +25,25 @@
           <tab id='CustomTab' label='PROJECTION'>
             <group id='PrepareGroup' label='Prepare Projection'>
               <button id='getTriangleList' label='Get Triangle List' size='large'
-                      imageMso ='_1'
+                      getImage='customGetImage'
                       screentip ='Get Triangle List'
                       supertip ='Click on this button to initialize the Control worksheet 
 and repopulate the list of triangles.'
                       onAction='RunTagMacro' tag='getInitialTriangleList' />
               <button id='assignValueToControl' label='Get Current Data' size='large'
-                      imageMso ='_2'
+                      getImage='customGetImage'
                       screentip ='Get Current Data'
                       supertip ='Click on this button to bring in current data for triangle,
 EPEE, closed averages, ground up IBNR Counts.'
                       onAction='RunTagMacro' tag='getData' />
               <button id='getHistoryData' label='Get Prior Data' size='large'
-                      imageMso ='_3'
+                      getImage='customGetImage'
                       screentip ='Get Prior Data'
                       supertip ='Click on this button to bring in prior month data, you cannot 
 click on 4 before you click this button first!'
                       onAction='RunTagMacro' tag='runVBAHistory' />
               <button id='setupProjection' label='Setup Projection' size='large'
-                      imageMso ='_4'
+                      getImage='customGetImage'
                       screentip ='Setup Projection'
                       supertip ='Click on this button to format various worksheets in the template 
 and make it a little bit easier to work on the file.'
@@ -83,7 +82,7 @@ when GU IBNR Count is only ready after you started working on the projection.'
                       imageMso ='InkLineColorPicker'
                       onAction='RunTagMacro' tag='adjustGraphLineColors' />
               <button id='finalizeQPage' label='Format QPage' size='large' 
-                      image='Star'
+                      getImage='customGetImage'
                       screentip ='Format Q-Page'
                       supertip ='Click on this button to hide Q-page columns that 
 say hide in the column header.'
@@ -114,6 +113,9 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
                       screentip ='Print PDF to VI'
                       supertip ='Click on this button to print PDFs to VI'
                       onAction='RunTagMacro' tag='runVBAPrintVI' />
+              <button id='testCompleteTriangle' label='CompleteTriangle' size='large' 
+                      imageMso ='FilePrint'
+                      onAction='RunTagMacro' tag='testCompleteTriangle' />
             </group>
           </tab>
         </tabs>

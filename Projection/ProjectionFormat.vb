@@ -124,6 +124,48 @@ Public Module ProjectionFormat
 
     End Sub
 
+    Public Sub completeTriangle(wkstName As String, name As String, ataName As String)
+        Dim counter, num As Integer
+
+        'First get the body of triangle
+        Dim rng As String = wkstName & "!" & name
+        Dim wkst As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
+        Dim dataVal As Object(,) = CType(wkst.GetValue, Object(,))
+
+        rng = wkstName & "!" & ataName
+        wkst = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
+        Dim ataVal As Object(,) = CType(wkst.GetValue, Object(,))
+
+        If dataVal.GetUpperBound(1) = 179 Then
+            num = 1
+            counter = 179
+        Else
+            num = 3
+            counter = 59
+        End If
+        'Calculate ATA * triangle
+        For i As Integer = 1 To dataVal.GetUpperBound(0)
+            For j As Integer = 1 + counter - i To dataVal.GetUpperBound(1)
+                dataVal(i, j) = CType(dataVal(i, j - 1), Double) * CType(ataVal(0, j - 1), Double)
+            Next
+        Next
+
+        'Go back to data range
+        rng = wkstName & "!" & name
+        wkst = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
+        wkst.SetValue(dataVal)
+
+        'move this block up
+        counter = 180
+        Dim dataRng As Range = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet).Range(name)
+        For i As Integer = 1 To dataRng.Rows.Count
+            For j As Integer = 1 + counter - i To dataRng.Columns.Count
+                CType(dataRng.Cells(i, j), Range).Interior.Color = RGB(255, 235, 205)
+                CType(dataRng.Cells(i, j), Range).Font.Color = RGB(220, 20, 60)
+            Next
+        Next
+    End Sub
+
     Public Sub monthToQuarterAlt(data As String)
         Application.Calculation = XlCalculation.xlCalculationManual
         Dim dataRng As String = "'Alt Data'!" & data & "_data_alt"
@@ -300,7 +342,6 @@ Public Module ProjectionFormat
                 End With
             Next
         End If
-
         'remove selections
         wkst.Range(shtName & "_sel_ATA").Offset(-1, 0).ClearContents()
         wkst.Range(shtName & "_sel_ATA_qtrly").Offset(-1, 0).ClearContents()
@@ -544,10 +585,10 @@ Public Module ProjectionFormat
         'letter selection column needs to be updated based on Paid/Incurred, A or H and B or G
         If projBase = "Paid" Then
             CType(rng.Columns(17), Range).Formula =
-                "=If(percent_paid>0.935, If(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
+                "=If(percent_paid>(1/1.07), If(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
         Else
             CType(rng.Columns(17), Range).Formula =
-                "=If(percent_incurred>0.935, If(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
+                "=If(percent_incurred>(1/1.07), If(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
         End If
 
         CType(rng.Columns(18), Range).Formula =
@@ -770,7 +811,6 @@ Public Module ProjectionFormat
             Exit Sub
         End If
     End Sub
-
     Public Sub runVBAHistory()
         Application.Run("History")
     End Sub

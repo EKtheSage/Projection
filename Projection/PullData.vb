@@ -238,7 +238,7 @@ Public Module PullData
             state = ""
         ElseIf state.Substring(0, 1) = "x" Then 'xNY, x4, etc -> could prove to be annoying down the road
             Dim state2 As String = state.Substring(1)
-            If IsNumeric(state2) Then
+            If IsNumeric(state2) Then 'this part needs to say not in the 4 states
                 state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
             Else
                 state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
@@ -322,9 +322,6 @@ Public Module PullData
             .Refresh()
         End With
 
-    End Sub
-    Public Sub loadGUIBNRCountFormLogin()
-        frmLogin.Show()
     End Sub
 
     Public Sub getGUIBNRCountVBA()

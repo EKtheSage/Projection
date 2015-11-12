@@ -148,6 +148,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\star-struck.png" />
+    <None Include="Resources\icon2.png" />
+    <None Include="Resources\icon3.png" />
+    <None Include="Resources\icon4.png" />
+    <None Include="Resources\icon1.png" />
     <Content Include="scratch work.txt" />
     <Content Include="Projection-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

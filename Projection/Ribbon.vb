@@ -41,11 +41,30 @@ Public Class TestRibbon
         End If
     End Sub
 
+    Public Function customGetImage(control As IRibbonControl) As Object
+        If control.Id = "finalizeQPage" Then
+            Return My.Resources.star_struck
+        ElseIf control.Id = "getTriangleList" Then
+            Return My.Resources.step1new
+        ElseIf control.Id = "assignValueToControl" Then
+            Return My.Resources.step2
+        ElseIf control.Id = "getHistoryData" Then
+            Return My.Resources.step3
+        ElseIf control.Id = "setupProjection" Then
+            Return My.Resources.step4
+        Else
+            Return 1
+        End If
+    End Function
 End Class
 
 Public Module Module1
     'Have a module that houses the macros for ribbons
 
+    Public Sub testCompleteTriangle()
+
+        completeTriangle("Paid", "Paid_data", "Paid_lastTime_ATA")
+    End Sub
     Sub Button2()
         MsgBox("Greetings from Button2!")
     End Sub

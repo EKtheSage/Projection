@@ -1,7 +1,8 @@
 ﻿Imports System.Drawing
 Imports System.Windows.Forms
 Imports Microsoft.Office.Interop.Excel
-
+Imports ExcelDna.Integration
+Imports System.Data.OleDb
 
 'Licensed under the Apache License, Version 2.0 (the "License"); you may Not use this file except In compliance With the License.	
 'You may obtain a copy Of the License at http://www.apache.org/licenses/LICENSE-2.0	
@@ -19,15 +20,109 @@ Public Class frmLineColor
         InitializeComponent()
         System.Windows.Forms.Application.EnableVisualStyles()
 
+        TabControl1.SelectTab(tpColor)
         ' Add any initialization after the InitializeComponent() call.
         For i = 1 To 5
-            Dim myLabel As System.Windows.Forms.Label = CType(Controls("lblYear" & i), System.Windows.Forms.Label)
+            Dim myLabel As System.Windows.Forms.Label = CType(tpColor.Controls("lblYear" & i), System.Windows.Forms.Label)
             myLabel.Text = (Year(CType(wkstControl.Range("CurrentEvalDate").Value, Date)) + i - 5).ToString
             myLabel.Height = 20
         Next
 
         lstColorName.SelectedIndex = 0
         AddHandler lstColorName.SelectedIndexChanged, AddressOf lstColorNameIndexChanged
+
+    End Sub
+
+    Private Sub showTriangle(wkstName As String, name As String, ataName As String)
+        'This is super slow!!!
+        'Dim num As Integer
+
+        'Dim fileLoc As String = Application.ActiveWorkbook.FullName
+        'Dim connStr As String = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & fileLoc &
+        '                ";Extended Properties='Excel 12.0;HDR=NO;';"
+
+        'Dim con As OleDb.OleDbConnection = New OleDb.OleDbConnection(connStr)
+        'Dim cmd As OleDbCommand = New OleDbCommand("Select * From " & name, con)
+        'con.Open()
+
+        'Dim sda As OleDbDataAdapter = New OleDbDataAdapter(cmd)
+
+        Dim dt As Data.DataTable = New Data.DataTable()
+        'sda.Fill(dt)
+
+        Dim counter, num As Integer
+
+
+        'First get the body of triangle
+        Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet)
+        Dim dataRng As Range = wkst.Range(name)
+        Dim ataRng As Range = wkst.Range(ataName)
+
+        If dataRng.Rows.Count = 180 Then
+            num = 1
+            counter = 180
+        Else
+            num = 3
+            counter = 60
+        End If
+        'Calculate ATA * triangle
+        For i As Integer = 2 To dataRng.Rows.Count
+            For j As Integer = 2 + counter - i To dataRng.Columns.Count
+                CType(dataRng.Cells(i, j), Range).Value =
+                    CType(CType(dataRng.Cells(i, j - 1), Range).Value, Double) *
+                    CType(CType(ataRng.Cells(1, j - 1), Range).Value, Double)
+            Next
+        Next
+
+
+        'Add columns to the data table
+        For i As Integer = 1 To dataRng.Columns.Count
+            dt.Columns.Add("Age " & (i * num), GetType(Double))
+        Next
+
+        'Add rows to the data table
+        For i As Integer = 1 To dataRng.Rows.Count
+            Dim row As DataRow = dt.NewRow
+            For j As Integer = 1 To dataRng.Columns.Count
+                row.Item(j - 1) = CType(CType(dataRng.Cells(i, j), Range).Value, Double)
+            Next
+            dt.Rows.Add(row)
+        Next
+
+        dgvTriangle.DataSource = Nothing
+        dgvTriangle.DataSource = dt
+        dgvTriangle.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders
+
+        'Add column headers
+        For i As Integer = 0 To dataRng.Columns.Count - 1
+            dgvTriangle.Columns(i).HeaderText = dt.Columns(i).ColumnName
+            dgvTriangle.Columns(i).SortMode = DataGridViewColumnSortMode.NotSortable
+            dgvTriangle.Columns(i).DefaultCellStyle.Format = "N"
+            dgvTriangle.Columns(i).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        Next
+
+    End Sub
+
+    Private Sub dgvTriangle_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles dgvTriangle.DataBindingComplete
+        Dim rng As Range = wkstSummary.Range("accident_date")
+        Dim parseDt As Date
+        For Each row As DataGridViewRow In dgvTriangle.Rows
+            parseDt = CType(CType(rng.Cells(row.Index + 1, 1), Range).Value, Date)
+            row.HeaderCell.Value = parseDt.ToShortDateString
+            row.Resizable = DataGridViewTriState.False
+        Next
+        dgvTriangle.ClearSelection()
+        dgvTriangle.Rows(dgvTriangle.Rows.Count - 1).Cells(1).Selected = True
+        dgvTriangle.FirstDisplayedScrollingRowIndex = dgvTriangle.Rows.Count - 1
+        dgvTriangle.ResumeLayout()
+
+        Dim counter As Integer = 179
+        For i As Integer = 1 To dgvTriangle.Rows.Count - 1
+            For j As Integer = 1 + counter - i To dgvTriangle.ColumnCount - 1
+                dgvTriangle.Rows(i).Cells(j).Style.ForeColor = Color.Crimson
+                dgvTriangle.Rows(i).Cells(j).Style.BackColor = Color.BlanchedAlmond
+            Next
+        Next
 
     End Sub
 
@@ -50,9 +145,9 @@ Public Class frmLineColor
                 {.level = cTbl.Item("level"), .red = cTbl.Item("red"), .green = cTbl.Item("green"), .blue = cTbl.Item("blue")}
 
         For Each item In query
-            lblRGB = CType(Controls("lblYear" & CType(item.level, Integer) & "RGB"), System.Windows.Forms.Label)
-            lblYear = CType(Controls("lblYear" & CType(item.level, Integer)), System.Windows.Forms.Label)
-            lblRGB.Text = CType(item.red, Integer) & "," & CType(item.green, Integer) & "," & CType(item.blue, Integer)
+            lblRGB = CType(tpColor.Controls("lblYear" & CType(item.level, Integer) & "RGB"), System.Windows.Forms.Label)
+            lblYear = CType(tpColor.Controls("lblYear" & CType(item.level, Integer)), System.Windows.Forms.Label)
+            lblRGB.Text = CType(item.red, Integer) & ", " & CType(item.green, Integer) & "," & CType(item.blue, Integer)
             lblYear.BackColor = Color.FromArgb(CType(item.red, Integer), CType(item.green, Integer), CType(item.blue, Integer))
         Next
 
@@ -245,7 +340,8 @@ Public Class frmLineColor
         Return table
     End Function
     Private Sub frmLineColor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
+        AddHandler dgvTriangle.DataBindingComplete, AddressOf dgvTriangle_DataBindingComplete
+        'showTriangle("Paid", "Paid_data", "Paid_sel_ATA")
     End Sub
 
     Private Sub btnApply_Click(sender As Object, e As EventArgs) Handles btnApply.Click
@@ -260,13 +356,13 @@ Public Class frmLineColor
     Private Sub updateColor(wkstName As String)
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet)
         Dim red, green, blue As Integer
+        Dim sepChars As Char() = New Char() {","c}
         For Each chartObj As ChartObject In CType(wkst.ChartObjects, ChartObjects)
-            MsgBox(chartObj.Chart.Name)
             For i = 1 To 5
                 With CType(chartObj.Chart.SeriesCollection(i), Series)
-                    red = Integer.Parse(Controls("lblYear" & i & "RGB").Text.Split(New Char() {","c})(0))
-                    green = Integer.Parse(Controls("lblYear" & i & "RGB").Text.Split(New Char() {","c})(1))
-                    blue = Integer.Parse(Controls("lblYear" & i & "RGB").Text.Split(New Char() {","c})(2))
+                    red = Integer.Parse(tpColor.Controls("lblYear" & i & "RGB").Text.Split(sepChars)(0))
+                    green = Integer.Parse(tpColor.Controls("lblYear" & i & "RGB").Text.Split(sepChars)(1))
+                    blue = Integer.Parse(tpColor.Controls("lblYear" & i & "RGB").Text.Split(sepChars)(2))
 
                     'note the tricky part here, the interop has a bug that takes in argument for RGB as Blue-Green-Red
                     'instead of the expected argument Red-Green-Blue
@@ -278,20 +374,21 @@ Public Class frmLineColor
     End Sub
 
     Private Sub btnAbout_Click(sender As Object, e As EventArgs) Handles btnAbout.Click
-        MsgBox("This is an implementation of ColorBrewer. Credit goes to Cynthia Brewer who created the color themes. " &
-               "Visit colorbrewer2.org for more information. The color options " &
-               "allow for clearer identification between different data groups." & vbCrLf & vbCrLf &
-               "1. Sequential (seq-n) schemes are suited to ordered data that progress from low to high. " &
-               "Lightness steps dominate the look of these schemes, with light colors for low data " &
-               "values to dark colors for high data values." & vbCrLf & vbCrLf &
-               "2. Diverging (div-n) schemes put equal emphasis on mid-range critical values and " &
-               "extremes at both ends of the data range. The critical class Or break in the " &
-               "middle of the legend Is emphasized with light colors And low And high extremes " &
-               "are emphasized with dark colors that have contrasting hues." & vbCrLf & vbCrLf &
+        MsgBox("This Is an implementation Of ColorBrewer. Credit goes To Professor Cynthia Brewer who created the color themes. " &
+               "Visit colorbrewer2.org For more information. The color options " &
+               "allow For clearer identification between different data groups." & vbCrLf & vbCrLf &
+               "1. Sequential (seq-n) schemes are suited To ordered data that progress from low To high. " &
+               "Lightness steps dominate the look Of these schemes, With light colors For low data " &
+               "values To dark colors For high data values." & vbCrLf & vbCrLf &
+               "2. Diverging (div-n) schemes put equal emphasis On mid-range critical values And " &
+               "extremes at both ends Of the data range. The critical Class Or break In the " &
+               "middle Of the legend Is emphasized With light colors And low And high extremes " &
+               "are emphasized With dark colors that have contrasting hues." & vbCrLf & vbCrLf &
                "3.Qualitative (qual-n) schemes Do Not imply magnitude differences between legend classes, " &
-               "And hues are used to create the primary visual differences between classes. " &
-               "Qualitative schemes are best suited to representing nominal Or categorical data.", Title:="Color Guide")
+               "And hues are used To create the primary visual differences between classes. " &
+               "Qualitative schemes are best suited To representing nominal Or categorical data.", Title:="Color Guide")
     End Sub
+
 End Class
 
 Public Class colorRGB
