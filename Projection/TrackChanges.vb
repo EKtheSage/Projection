@@ -67,6 +67,7 @@ Public Class TrackChanges
         Dim ATANamedRange As String
 
         If Application.Intersect(target, finalSel) Is Nothing And
+           Application.Intersect(target, wkstReviewTemplate.Range("RT_letterSel")) Is Nothing And
            Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) Is Nothing And
            Application.Intersect(target, wkstReviewTemplate.Range("RT_PPTrnd")) Is Nothing And
            Application.Intersect(target, wkstReviewTemplate.Range("RT_LRTrnd")) Is Nothing And
@@ -96,6 +97,15 @@ Public Class TrackChanges
             wkst.Range(ATANamedRange).Offset(-1, colIndex).Resize(1, 1).Value = target.Value
 
             'add track changes here?
+
+            'letter selection changes
+        ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_letterSel")) IsNot Nothing And
+                CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then
+
+            Dim letterSel As Range = wkstSummary.Range("letter")
+            Dim index As Integer = letterSel.Rows.Count - CType(target.Offset(0, -3).Value, Integer)
+            CType(wkstSummary.Range("letter").Cells(index, 1), Range).Value = target.Value
+
         ElseIf Application.Intersect(target, wkstReviewTemplate.Range("RT_SevTrnd")) IsNot Nothing And
                 CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name = "Review Template" Then 'sev trend
 

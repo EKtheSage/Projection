@@ -555,10 +555,10 @@ Public Module ProjectionFormat
 
         If evalGroup = "Monthly" Then
             CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
-            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)"
+            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)/365"
         Else
             CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000"
-            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)"
+            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)/365"
         End If
 
         CType(rng.Columns(5), Range).Formula = "=ep/ee*1000"
