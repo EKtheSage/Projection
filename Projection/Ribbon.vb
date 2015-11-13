@@ -45,7 +45,7 @@ Public Class TestRibbon
         If control.Id = "finalizeQPage" Then
             Return My.Resources.star_struck
         ElseIf control.Id = "getTriangleList" Then
-            Return My.Resources.step1new
+            Return My.Resources.step1
         ElseIf control.Id = "assignValueToControl" Then
             Return My.Resources.step2
         ElseIf control.Id = "getHistoryData" Then
@@ -61,10 +61,29 @@ End Class
 Public Module Module1
     'Have a module that houses the macros for ribbons
 
-    Public Sub testCompleteTriangle()
+    Public Sub useSelected()
+        If evalGroup = "Monthly" Then
+            completeTriangle(projBase, projBase & "_data", projBase & "_sel_ATA")
+        Else
+            completeTriangle(projBase, projBase & "_qtrlydata", projBase & "_sel_ATA_qtrly")
+        End If
 
-        completeTriangle("Paid", "Paid_data", "Paid_lastTime_ATA")
     End Sub
+    Public Sub useDefault()
+        If evalGroup = "Monthly" Then
+            completeTriangle(projBase, projBase & "_data", projBase & "_default_ATA")
+        Else
+            completeTriangle(projBase, projBase & "_qtrlydata", projBase & "_default_ATA_qtrly")
+        End If
+    End Sub
+    Public Sub usePrior()
+        If evalGroup = "Monthly" Then
+            completeTriangle(projBase, projBase & "_data", projBase & "_lastTime_ATA")
+        Else
+            completeTriangle(projBase, projBase & "_qtrlydata", projBase & "_lastTime_ATA_qtrly")
+        End If
+    End Sub
+
     Sub Button2()
         MsgBox("Greetings from Button2!")
     End Sub

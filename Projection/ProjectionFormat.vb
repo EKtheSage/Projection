@@ -1,9 +1,8 @@
 ﻿'Future add-ons to the module:
 ' 1. Apply different ATA factors based on number of working days (Good to have)
 ' 2. Conditional formatting on the triangle, show heatmap ??
-' 3. Project payments as lower half of rectangle ??
-' 4. Reserve Ranges ??
-' 5. Initialize triangle objects for calculation behind the scene ??
+' 3. Reserve Ranges ??
+' 4. Initialize triangle objects for calculation behind the scene ??
 
 Imports ExcelDna.Integration
 Imports Microsoft.Office.Interop.Excel
@@ -125,6 +124,8 @@ Public Module ProjectionFormat
     End Sub
 
     Public Sub completeTriangle(wkstName As String, name As String, ataName As String)
+
+        Application.ScreenUpdating = False
         Dim counter, num As Integer
 
         'First get the body of triangle
@@ -155,15 +156,7 @@ Public Module ProjectionFormat
         wkst = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
         wkst.SetValue(dataVal)
 
-        'move this block up
-        counter = 180
-        Dim dataRng As Range = CType(Application.ActiveWorkbook.Worksheets(wkstName), Worksheet).Range(name)
-        For i As Integer = 1 To dataRng.Rows.Count
-            For j As Integer = 1 + counter - i To dataRng.Columns.Count
-                CType(dataRng.Cells(i, j), Range).Interior.Color = RGB(255, 235, 205)
-                CType(dataRng.Cells(i, j), Range).Font.Color = RGB(220, 20, 60)
-            Next
-        Next
+        Application.ScreenUpdating = True
     End Sub
 
     Public Sub monthToQuarterAlt(data As String)
@@ -401,7 +394,12 @@ Public Module ProjectionFormat
                     "Count_CurAmt-Count_Exclusion+Count_GUIBNR)"
             CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
-            CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
+
+            If evalGroup = "Monthly" Then
+                CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
+            Else
+                CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,4,0),0)"
+            End If
             CType(CType(rng.Columns(9), Range).Offset(0, 1).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
                 "=SUM(Count_GUIBNR)"
         Else
@@ -574,7 +572,8 @@ Public Module ProjectionFormat
         CType(rng.Columns(13), Range).FormulaArray = "=IFERROR(cur_incurred/percent_incurred,0)+Incurred_Cap"
 
         'remove age 1 exp loss formula
-        CType(rng.Columns(14), Range).Formula = "=INDEX(tbl_expLoss[exp_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1)"
+        CType(rng.Columns(14), Range).Formula =
+            "=IFERROR(INDEX(tbl_expLoss[exp_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1),0)"
         CType(rng.Columns(14), Range).End(XlDirection.xlDown).ClearContents()
 
         CType(rng.Columns(15), Range).Formula =
@@ -593,7 +592,7 @@ Public Module ProjectionFormat
 
         CType(rng.Columns(18), Range).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred," &
-            "ult_incurred,exp_loss,VLOOKUP(accident_date,tbl_expLoss,5,0))"
+            "ult_incurred,exp_loss,IFERROR(VLOOKUP(accident_date,tbl_expLoss,5,0),0))"
         'age 1 exp loss doesn't use prior loss
         CType(rng.Columns(18), Range).End(XlDirection.xlDown).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
@@ -612,7 +611,7 @@ Public Module ProjectionFormat
 
         'Development over prior, age 1 is blank
         CType(rng.Columns(23), Range).Formula =
-            "=sel_ultloss-INDEX(tbl_expLoss[sel_ult_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1)"
+            "=IFERROR(sel_ultloss-INDEX(tbl_expLoss[sel_ult_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1),0)"
         CType(rng.Columns(23), Range).End(XlDirection.xlDown).ClearContents()
 
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ep"
@@ -673,6 +672,9 @@ Public Module ProjectionFormat
         wkstReviewTemplate.Range("Y1:AD1").Offset(1, 0).Resize(rowCount - 1, 6).ClearContents()
 
         wkstReviewTemplate.Range("RT_selATA").ClearContents()
+
+        'refill letter selection formulas
+        wkstReviewTemplate.Range("RT_letterSel").Formula = "=INDEX(letter,ROWS(letter)-$H21,1)"
 
         'update 7-ult ATU
         CType(wkstReviewTemplate.Cells(9, 3), Range).Formula =

@@ -113,9 +113,23 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
                       screentip ='Print PDF to VI'
                       supertip ='Click on this button to print PDFs to VI'
                       onAction='RunTagMacro' tag='runVBAPrintVI' />
-              <button id='testCompleteTriangle' label='CompleteTriangle' size='large' 
-                      imageMso ='FilePrint'
-                      onAction='RunTagMacro' tag='testCompleteTriangle' />
+            </group>
+            <group id='CompleteTriangle' label='Complete Triangle'>
+               <button id='selected' label='Selected ATA' size='normal' 
+                      imageMso ='HappyFace'
+                      screentip ='Complete Triangle with selected ATA'
+                      supertip ='Complete Triangle with selected ATA'
+                      onAction='RunTagMacro' tag='useSelected' />
+               <button id='default' label='Default ATA' size='normal' 
+                      imageMso ='HappyFace'
+                      screentip ='Complete Triangle with default ATA'
+                      supertip ='Complete Triangle with default ATA'
+                      onAction='RunTagMacro' tag='useDefault' />
+               <button id='prior' label='Prior ATA' size='normal' 
+                      imageMso ='HappyFace'
+                      screentip ='Complete Triangle with prior ATA'
+                      supertip ='Complete Triangle with prior ATA'
+                      onAction='RunTagMacro' tag='usePrior' />
             </group>
           </tab>
         </tabs>

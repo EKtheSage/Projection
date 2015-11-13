@@ -144,7 +144,6 @@ Public Module PullData
         wkstControl.Range("Default_ATA").Formula = "=VLOOKUP(coverage,lookUp_coverage,5,0)"
 
         getTrianglesFromSqlSvr()
-        getEPEE()
         getClsdAvg()
     End Sub
     Public Sub getTrianglesFromSqlSvr()
@@ -209,56 +208,6 @@ Public Module PullData
             End Select
         Next
     End Sub
-
-    Public Sub getEPEE()
-        Dim state As String
-        Dim risk As String = ""
-        Dim sqlString As String
-        Dim oledbConn As OLEDBConnection
-        Dim coverage As String = CType(wkstControl.Range("coverage").Value, String)
-
-        Dim queryCov =
-            From a In cov
-            Where a.coverageName = coverage
-            Select a.coverageNum
-
-        Dim coverage2 As String = Convert.ToString(queryCov.ToList(0).ToString)
-
-        If coverage2 = "XMC" Then
-            coverage2 = "(036, 083)"
-        ElseIf coverage2 = "UMC" Then
-            coverage2 = "(005, 024, 073, 074)"
-        Else
-            coverage2 = "(" & coverage2 & ")"
-        End If
-
-        state = CType(wkstControl.Range("state").Value, String)
-
-        If state = "CW" Then
-            state = ""
-        ElseIf state.Substring(0, 1) = "x" Then 'xNY, x4, etc -> could prove to be annoying down the road
-            Dim state2 As String = state.Substring(1)
-            If IsNumeric(state2) Then 'this part needs to say not in the 4 states
-                state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
-            Else
-                state = " And A.state NOT IN (" & Chr(39) & state2 & Chr(39) & ")"
-            End If
-        Else
-            state = " And A.state =" & Chr(39) & state & Chr(39)
-        End If
-
-        risk = Chr(39) & CType(wkstControl.Range("risk").Value, String) & Chr(39)
-        sqlString = "SELECT A.Date, sum(A.EP) As EP, sum(A.EE) / 365 as EE " &
-                "From EPEE As A " &
-                "Where A.Risk_Seg =" & risk & state & " And A.Coverage IN" &
-                coverage2 & Chr(32) &
-                "Group By A.Date " &
-                "Order By A.Date"
-        oledbConn = Application.ActiveWorkbook.Connections("EPEE").OLEDBConnection
-        oledbConn.CommandText = sqlString
-        oledbConn.Refresh()
-    End Sub
-
     Public Sub getClsdAvg()
         Dim qT As QueryTable
         Dim urlString, risk, company, lob, state, covNum, coverage As String
