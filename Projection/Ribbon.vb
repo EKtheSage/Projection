@@ -52,6 +52,20 @@ Public Class TestRibbon
             Return My.Resources.step3
         ElseIf control.Id = "setupProjection" Then
             Return My.Resources.step4
+        ElseIf control.Id = "selected" Then
+            Return My.Resources.laugh5
+        ElseIf control.Id = "default" Then
+            Return My.Resources.laugh4
+        ElseIf control.Id = "prior" Then
+            Return My.Resources.laugh3
+        ElseIf control.Id = "showAllTriangles" Then
+            Return My.Resources.cool
+        ElseIf control.Id = "showMonthlyTriangles" Then
+            Return My.Resources.laugh1
+        ElseIf control.Id = "showQuarterlyTriangles" Then
+            Return My.Resources.laugh2
+        ElseIf control.Id = "showDefaultTriangle" Then
+            Return My.Resources.angel
         Else
             Return 1
         End If

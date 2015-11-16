@@ -62,16 +62,16 @@ when GU IBNR Count is only ready after you started working on the projection.'
             </group>
             <group id='TemplateFormatGroup' label='Format Worksheets'>
               <button id='showAllTriangles' label='Show All Triangles' size='normal' 
-                      imageMso ='ShapeHeart'
+                      getImage='customGetImage'
                       onAction='RunTagMacro' tag='showAllTriangles' />
               <button id='showMonthlyTriangles' label='Show Monthly Triangles' size='normal' 
-                      imageMso ='MicrosoftVisualFoxPro'
+                      getImage='customGetImage'
                       onAction='RunTagMacro' tag='showMonthlyTriangles' />
               <button id='showQuarterlyTriangles' label='Show Quarterly Triangles' size='normal' 
-                      imageMso ='HappyFace'
+                      getImage='customGetImage'
                       onAction='RunTagMacro' tag='showQuarterlyTriangles' />
               <button id='showDefaultTriangle' label='Show Default Triangle View' size='large' 
-                      imageMso ='BlogHomePage'
+                      getImage='customGetImage'
                       onAction='RunTagMacro' tag='showDefaultTriangleView' />
               <button id='finalizeGraphs' label='Update Graphs Y-Axis' size='large' 
                       imageMso ='PictureBrightnessGallery'
@@ -116,17 +116,17 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
             </group>
             <group id='CompleteTriangle' label='Complete Triangle'>
                <button id='selected' label='Selected ATA' size='normal' 
-                      imageMso ='HappyFace'
+                      getImage='customGetImage'
                       screentip ='Complete Triangle with selected ATA'
                       supertip ='Complete Triangle with selected ATA'
                       onAction='RunTagMacro' tag='useSelected' />
                <button id='default' label='Default ATA' size='normal' 
-                      imageMso ='HappyFace'
+                      getImage='customGetImage'
                       screentip ='Complete Triangle with default ATA'
                       supertip ='Complete Triangle with default ATA'
                       onAction='RunTagMacro' tag='useDefault' />
                <button id='prior' label='Prior ATA' size='normal' 
-                      imageMso ='HappyFace'
+                      getImage='customGetImage'
                       screentip ='Complete Triangle with prior ATA'
                       supertip ='Complete Triangle with prior ATA'
                       onAction='RunTagMacro' tag='usePrior' />

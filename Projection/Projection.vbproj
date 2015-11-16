@@ -152,6 +152,13 @@
     <None Include="Resources\icon2.png" />
     <None Include="Resources\icon4.png" />
     <None Include="Resources\icon3.png" />
+    <None Include="Resources\angel.png" />
+    <None Include="Resources\cool.png" />
+    <None Include="Resources\laugh1.png" />
+    <None Include="Resources\laugh2.png" />
+    <None Include="Resources\laugh3.png" />
+    <None Include="Resources\laugh4.png" />
+    <None Include="Resources\laugh5.png" />
     <Content Include="scratch work.txt" />
     <Content Include="Projection-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

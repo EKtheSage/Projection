@@ -247,11 +247,11 @@ Public Module ProjectionFormat
                 If evalGroup = "Monthly" Then
                     month = False
                     quarter = True
-                    hideRows = Application.Union(CType(wkst.Rows("2:157"), Range), CType(wkst.Rows("184:338"), Range))
+                    hideRows = Application.Union(CType(wkst.Rows("2:156"), Range), CType(wkst.Rows("184:337"), Range))
                 Else
                     month = True
                     quarter = False
-                    hideRows = Application.Union(CType(wkst.Rows("381:416"), Range), CType(wkst.Rows("443:477"), Range))
+                    hideRows = Application.Union(CType(wkst.Rows("381:415"), Range), CType(wkst.Rows("443:476"), Range))
                 End If
 
                 CType(wkst.Rows("1:379"), Range).EntireRow.Hidden = month
@@ -667,9 +667,9 @@ Public Module ProjectionFormat
 
     End Sub
     Public Sub reviewTemplate()
-        Dim rowCount As Integer = wkstReviewTemplate.Range("Y1").End(XlDirection.xlDown).Row
+        Dim rowCount As Integer = wkstReviewTemplate.Range("Z1").End(XlDirection.xlDown).Row
         'clear last time's track changes
-        wkstReviewTemplate.Range("Y1:AD1").Offset(1, 0).Resize(rowCount - 1, 6).ClearContents()
+        wkstReviewTemplate.Range("Z1:AE1").Offset(1, 0).Resize(rowCount - 1, 6).ClearContents()
 
         wkstReviewTemplate.Range("RT_selATA").ClearContents()
 
@@ -760,14 +760,14 @@ Public Module ProjectionFormat
         CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
 
         'track changes on the review template
-        CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
-        CType(wkstReviewTemplate.Cells(row, 26), Range).Value = rng.Resize(1, 1).Value
-        CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("$P$11").Value
-        CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
+        CType(wkstReviewTemplate.Cells(row, 26), Range).Value = projBase
+        CType(wkstReviewTemplate.Cells(row, 27), Range).Value = rng.Resize(1, 1).Value
+        CType(wkstReviewTemplate.Cells(row, 28), Range).Value = wkstExpLoss.Range("$P$11").Value
+        CType(wkstReviewTemplate.Cells(row, 29), Range).Value =
                 sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
-        CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
-        CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
-        CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
+        CType(wkstReviewTemplate.Cells(row, 30), Range).Value = dt
+        CType(wkstReviewTemplate.Cells(row, 31), Range).Value =
+            CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
     End Sub
 
     Public Sub finalizeExpLoss()
@@ -799,14 +799,14 @@ Public Module ProjectionFormat
             wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
 
             'track changes on Review Template
-            row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
-            CType(wkstReviewTemplate.Cells(row, 25), Range).Value = projBase
-            CType(wkstReviewTemplate.Cells(row, 26), Range).Value = age1
-            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = wkstExpLoss.Range("P11").Value
-            CType(wkstReviewTemplate.Cells(row, 28), Range).Value =
+            row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 26), Range).End(XlDirection.xlUp).Row + 1
+            CType(wkstReviewTemplate.Cells(row, 26), Range).Value = projBase
+            CType(wkstReviewTemplate.Cells(row, 27), Range).Value = age1
+            CType(wkstReviewTemplate.Cells(row, 28), Range).Value = wkstExpLoss.Range("P11").Value
+            CType(wkstReviewTemplate.Cells(row, 29), Range).Value =
                 sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
-            CType(wkstReviewTemplate.Cells(row, 29), Range).Value = dt
-            CType(wkstReviewTemplate.Cells(row, 30), Range).Value =
+            CType(wkstReviewTemplate.Cells(row, 30), Range).Value = dt
+            CType(wkstReviewTemplate.Cells(row, 31), Range).Value =
                 CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
         Else
             MsgBox("Can only bring Age " & counter & " expected loss to review template!")
