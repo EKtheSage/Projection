@@ -130,6 +130,11 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
                       screentip ='Complete Triangle with prior ATA'
                       supertip ='Complete Triangle with prior ATA'
                       onAction='RunTagMacro' tag='usePrior' />
+              <button id='clear' label='Clear Triangle' size='large' 
+                      getImage='customGetImage'
+                      screentip ='Clear completed Triangle'
+                      supertip ='Clear completed Triangle'
+                      onAction='RunTagMacro' tag='clearCompleted' />
             </group>
           </tab>
         </tabs>

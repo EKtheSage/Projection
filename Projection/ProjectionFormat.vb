@@ -123,6 +123,33 @@ Public Module ProjectionFormat
 
     End Sub
 
+    Public Sub clearTriangle(wkstName As String, name As String)
+        Application.ScreenUpdating = False
+
+        'First get the body of triangle
+        Dim rng As String = wkstName & "!" & name
+        Dim wkst As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
+        Dim dataVal As Object(,) = CType(wkst.GetValue, Object(,))
+        Dim counter As Integer
+
+        If evalGroup = "Monthly" Then
+            counter = 179
+        Else
+            counter = 59
+        End If
+
+        For i As Integer = 1 To dataVal.GetUpperBound(0)
+            For j As Integer = 1 + counter - i To dataVal.GetUpperBound(1)
+                dataVal(i, j) = Nothing
+            Next
+        Next
+
+        'Go back to data range
+        wkst = CType(XlCall.Excel(XlCall.xlfEvaluate, rng), ExcelReference)
+        wkst.SetValue(dataVal)
+
+        Application.ScreenUpdating = True
+    End Sub
     Public Sub completeTriangle(wkstName As String, name As String, ataName As String)
 
         Application.ScreenUpdating = False

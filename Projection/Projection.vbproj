@@ -159,6 +159,7 @@
     <None Include="Resources\laugh3.png" />
     <None Include="Resources\laugh4.png" />
     <None Include="Resources\laugh5.png" />
+    <None Include="Resources\xd.png" />
     <Content Include="scratch work.txt" />
     <Content Include="Projection-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

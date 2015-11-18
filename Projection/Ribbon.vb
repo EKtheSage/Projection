@@ -66,6 +66,8 @@ Public Class TestRibbon
             Return My.Resources.laugh2
         ElseIf control.Id = "showDefaultTriangle" Then
             Return My.Resources.angel
+        ElseIf control.Id = "clear" Then
+            Return My.Resources.xd
         Else
             Return 1
         End If
@@ -74,14 +76,19 @@ End Class
 
 Public Module Module1
     'Have a module that houses the macros for ribbons
-
+    Public Sub clearCompleted()
+        If evalGroup = "Monthly" Then
+            clearTriangle(projBase, projBase & "_data")
+        Else
+            clearTriangle(projBase, projBase & "_qtrlydata")
+        End If
+    End Sub
     Public Sub useSelected()
         If evalGroup = "Monthly" Then
             completeTriangle(projBase, projBase & "_data", projBase & "_sel_ATA")
         Else
             completeTriangle(projBase, projBase & "_qtrlydata", projBase & "_sel_ATA_qtrly")
         End If
-
     End Sub
     Public Sub useDefault()
         If evalGroup = "Monthly" Then
