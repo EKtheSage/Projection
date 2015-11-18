@@ -14,23 +14,10 @@ Public Class TrackChanges
     Public Sub AutoOpen() Implements IExcelAddIn.AutoOpen
         Application = CType(ExcelDnaUtil.Application, Application)
         AddHandler Application.SheetChange, AddressOf WorksheetChange
-        AddHandler Application.SheetDeactivate, AddressOf WorksheetDeactivate
-    End Sub
-
-    Private Sub WorksheetDeactivate(sh As Object)
-        'this sub is supposed to allow users to not worry about clicking on buttons
-        If CType(sh, Worksheet).Name = projBase Then
-            finalizeATA()
-        ElseIf CType(sh, Worksheet).Name = wkstExpLoss.Name Then
-            finalizeExpLoss()
-        Else
-            Exit Sub
-        End If
     End Sub
 
     Private Sub WorksheetChange(sh As Object, target As Range)
         Dim rngName As Name
-
         If CType(sh, Worksheet).Name = wkstExpLoss.Name Then
             worksheetExpLossChange(target)
         End If

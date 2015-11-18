@@ -370,7 +370,11 @@ Public Module ChainLadder
             Next
 
             ATASum = Decimal.Round(CType(ATASum, Decimal), 4, MidpointRounding.AwayFromZero)
-            If ATASum < (numPt - counter - 2) Then
+
+
+            'manually assign last 2 points to be 1, also  assign 1 if sum divided by num points less than 1
+            If ATASum < (numPt - counter - 2) Or
+                j > ATATri.GetUpperBound(1) - 2 Then
                 out(j) = 1
             Else
                 out(j) = Decimal.Round(
@@ -378,10 +382,6 @@ Public Module ChainLadder
                     4, MidpointRounding.AwayFromZero)
             End If
 
-            'manually assign last 2 points to be 1
-            If j > ATATri.GetUpperBound(1) - 2 Then
-                out(j) = 1
-            End If
         Next
         Return out
     End Function

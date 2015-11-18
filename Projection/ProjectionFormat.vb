@@ -457,7 +457,20 @@ Public Module ProjectionFormat
         Next
 
         For c As Integer = 1 To counter
-            CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = c
+            If counter = 12 Then
+                CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = c
+            Else
+                If Month(CType(wkstControl.Range("CurrentEvalDate").Value, Date)) Mod 3 = 0 Then
+                    '3 6 9 12
+                    CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = 3 * c
+                ElseIf Month(CType(wkstControl.Range("CurrentEvalDate").Value, Date)) Mod 3 = 1 Then
+                    '1 4 7 10
+                    CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = 3 * c - 2
+                Else
+                    '2 5 8 11
+                    CType(tblSev.ListColumns(1).Range.Cells(c), Range).Value = 3 * c - 1
+                End If
+            End If
         Next
         Application.ScreenUpdating = True
     End Sub
@@ -617,7 +630,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ep"
         CType(rng.Columns(25), Range).Formula = "=sel_ultloss/ult_counts*1000"
         CType(rng.Columns(27), Range).Formula = "=sel_ultloss/ee*1000"
-        CType(rng.Columns(29), Range).Formula = "=If(age<IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<""&IC_spr_age), 0)"
+        CType(rng.Columns(29), Range).Formula = "=If(age<=IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<=""&IC_spr_age), 0)"
         CType(rng.Columns(30), Range).Formula = "=sel_volatility*preIC_res_spr"
         CType(rng.Columns(31), Range).Formula = "=preIC_ultloss-cur_paid"
         CType(rng.Columns(32), Range).Formula = "=cur_incurred-cur_paid"
@@ -701,13 +714,13 @@ Public Module ProjectionFormat
             'change paid ATU to prior ATU first, get the reserves using prior sel
             CType(summary.Columns(9), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
             wkstReviewTemplate.Range("C16").Value = reserves
 
             'change paid ATU to default ATU, get the reserves with default sel
             CType(summary.Columns(9), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_defaultATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
 
             'finally change paid ATU back to selected ATU
@@ -716,11 +729,11 @@ Public Module ProjectionFormat
         Else
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_priorATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
             wkstReviewTemplate.Range("C16").Value = reserves
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_defaultATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(33), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
             wkstReviewTemplate.Range("D16").Value = reserves
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
@@ -730,7 +743,6 @@ Public Module ProjectionFormat
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim row As Integer
         Dim dt As Date = Now
-        row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 25), Range).End(XlDirection.xlUp).Row + 1
 
         'bring in the prior and default reserves in
         reviewTemplate2()
@@ -760,11 +772,12 @@ Public Module ProjectionFormat
         CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
 
         'track changes on the review template
+        row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 26), Range).End(XlDirection.xlUp).Row + 1
         CType(wkstReviewTemplate.Cells(row, 26), Range).Value = projBase
         CType(wkstReviewTemplate.Cells(row, 27), Range).Value = rng.Resize(1, 1).Value
         CType(wkstReviewTemplate.Cells(row, 28), Range).Value = wkstExpLoss.Range("$P$11").Value
         CType(wkstReviewTemplate.Cells(row, 29), Range).Value =
-                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
+                sumRange(CType(CType(wkstSummary.Range("summary").Columns(34), Range).Value, Object(,)))
         CType(wkstReviewTemplate.Cells(row, 30), Range).Value = dt
         CType(wkstReviewTemplate.Cells(row, 31), Range).Value =
             CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
@@ -804,7 +817,7 @@ Public Module ProjectionFormat
             CType(wkstReviewTemplate.Cells(row, 27), Range).Value = age1
             CType(wkstReviewTemplate.Cells(row, 28), Range).Value = wkstExpLoss.Range("P11").Value
             CType(wkstReviewTemplate.Cells(row, 29), Range).Value =
-                sumRange(CType(CType(wkstSummary.Range("summary").Columns(33), Range).Value, Object(,)))
+                sumRange(CType(CType(wkstSummary.Range("summary").Columns(34), Range).Value, Object(,)))
             CType(wkstReviewTemplate.Cells(row, 30), Range).Value = dt
             CType(wkstReviewTemplate.Cells(row, 31), Range).Value =
                 CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value

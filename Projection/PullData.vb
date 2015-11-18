@@ -62,7 +62,10 @@ Public Module PullData
             New coverageList With {.coverageName = "UMC", .coverageNum = "UMC"},
             New coverageList With {.coverageName = "MP", .coverageNum = "007"},
             New coverageList With {.coverageName = "PIP", .coverageNum = "020"},
-            New coverageList With {.coverageName = "XMC", .coverageNum = "XMC"}
+            New coverageList With {.coverageName = "XMC", .coverageNum = "XMC"},
+            New coverageList With {.coverageName = "041", .coverageNum = "041"},
+            New coverageList With {.coverageName = "042", .coverageNum = "042"},
+            New coverageList With {.coverageName = "043", .coverageNum = "043"}
         }
     End Function
 
