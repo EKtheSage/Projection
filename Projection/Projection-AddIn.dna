@@ -49,13 +49,13 @@ click on 4 before you click this button first!'
 and make it a little bit easier to work on the file.'
                       onAction='RunTagMacro' tag='setup' />
               <button id='getGUIBNRCount' label='Get GU IBNR Count' size='large'
-                      imageMso ='Piggy'
+                      getImage='customGetImage'
                       screentip ='Get GU IBNR Count'
                       supertip ='Click on this button to bring in GU IBNR Count, in the case 
 when GU IBNR Count is only ready after you started working on the projection.'
                       onAction='RunTagMacro' tag='getGUIBNRCountVBA' />
               <button id='getClosMod' label='Get Closure Model' size='large'
-                      imageMso ='MagicEightBall'
+                      getImage='customGetImage'
                       screentip ='Get Closure Model Data'
                       supertip ='Click on this button to bring in Closure Model Data.'
                       onAction='RunTagMacro' tag='getClsModVBA' />

@@ -59,15 +59,19 @@ Public Class TestRibbon
         ElseIf control.Id = "prior" Then
             Return My.Resources.laugh3
         ElseIf control.Id = "showAllTriangles" Then
-            Return My.Resources.cool
+            Return My.Resources.all_triangle
         ElseIf control.Id = "showMonthlyTriangles" Then
-            Return My.Resources.laugh1
+            Return My.Resources.monthly_triangle
         ElseIf control.Id = "showQuarterlyTriangles" Then
-            Return My.Resources.laugh2
+            Return My.Resources.quarerly_triangle
         ElseIf control.Id = "showDefaultTriangle" Then
             Return My.Resources.angel
         ElseIf control.Id = "clear" Then
             Return My.Resources.xd
+        ElseIf control.Id = "getGUIBNRCount" Then
+            Return My.Resources.Get_GU
+        ElseIf control.Id = "getClosMod" Then
+            Return My.Resources.Get_CM
         Else
             Return 1
         End If

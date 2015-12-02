@@ -508,7 +508,7 @@ Public Module ProjectionFormat
         For Each chartObj As ChartObject In CType(wkst.ChartObjects, ChartObjects)
             'charobject.chart.name is tricky -- it will show the activesheet's name 
             'in front of the chart name
-            Dim sheetName As String = CType(Application.ActiveSheet, Worksheet).Name
+            Dim sheetName As String = CType(Application.ActiveWorkbook.ActiveSheet, Worksheet).Name
             Dim chartName As String = chartObj.Chart.Name.Substring(Len(sheetName) + 1)
             Dim tbl As ListObject = wkstExpLoss.ListObjects("tbl_" & chartName)
             Dim min, max, majorUnit As Double
@@ -596,9 +596,12 @@ Public Module ProjectionFormat
         If evalGroup = "Monthly" Then
             CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
             CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)/365"
+            CType(rng.Columns(20), Range).Formula =
+                "=If(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         Else
             CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000"
             CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)/365"
+            CType(rng.Columns(20), Range).Formula = "=INDEX(tbl_clsmod,MATCH(age,age,0),tbl_closmod_column)/1000"
         End If
 
         CType(rng.Columns(5), Range).Formula = "=ep/ee*1000"
@@ -638,13 +641,20 @@ Public Module ProjectionFormat
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
 
         CType(rng.Columns(19), Range).Formula = "=preIC_ultloss+volatility"
-        CType(rng.Columns(20), Range).Formula = "=If(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
+
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
 
         'BI needs special formula
         If coverageField = "BI" Then
-            CType(rng.Columns(22), Range).Formula =
+            'any risk projections use this formula
+            If CType(wkstControl.Range("risk").Value, String) <> "ALL" Then
+                CType(rng.Columns(22), Range).Formula =
                 "=If(YEAR(accident_date)<2007,ult_incurred,MAX(INDEX(cur_incurred,ROW()-1,1),INDEX(wtd_ultloss,ROW()-1,1)))"
+            Else
+                'other wise use this formula (e.g., company projections)
+                CType(rng.Columns(22), Range).Formula =
+                "=MAX(INDEX(cur_incurred,ROW()-1,1),INDEX(wtd_ultloss,ROW()-1,1))"
+            End If
         Else
             CType(rng.Columns(22), Range).Formula = "=IC_ultloss"
         End If
