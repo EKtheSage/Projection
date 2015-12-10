@@ -604,9 +604,9 @@ Public Module ProjectionFormat
             CType(rng.Columns(20), Range).Formula = "=INDEX(tbl_clsmod,MATCH(age,age,0),tbl_closmod_column)/1000"
         End If
 
-        CType(rng.Columns(5), Range).Formula = "=ep/ee*1000"
+        CType(rng.Columns(5), Range).Formula = "=IFERROR(ep/ee*1000,0)"
         CType(rng.Columns(6), Range).Formula = "=VLOOKUP(accident_date,Count_Summary,column_count_summary_selULT,0)"
-        CType(rng.Columns(7), Range).Formula = "=ult_counts/ee*1000"
+        CType(rng.Columns(7), Range).Formula = "=IFERROR(ult_counts/ee*1000,0)"
         CType(rng.Columns(8), Range).FormulaArray = "=Paid_CurAmt-Paid_Cap-Paid_Exclusion"
         CType(rng.Columns(9), Range).Formula = "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_selATU,0),0)"
         CType(rng.Columns(10), Range).FormulaArray = "=IFERROR(cur_paid/percent_paid,0)+Paid_Cap"
@@ -664,18 +664,18 @@ Public Module ProjectionFormat
             "=IFERROR(sel_ultloss-INDEX(tbl_expLoss[sel_ult_loss], MATCH(accident_date,tbl_expLoss[accident_date],0),1),0)"
         CType(rng.Columns(23), Range).End(XlDirection.xlDown).ClearContents()
 
-        CType(rng.Columns(24), Range).Formula = "=sel_ultloss/ep"
-        CType(rng.Columns(25), Range).Formula = "=sel_ultloss/ult_counts*1000"
-        CType(rng.Columns(27), Range).Formula = "=sel_ultloss/ee*1000"
+        CType(rng.Columns(24), Range).Formula = "=IFERROR(sel_ultloss/ep,0)"
+        CType(rng.Columns(25), Range).Formula = "=IFERROR(sel_ultloss/ult_counts*1000,0)"
+        CType(rng.Columns(27), Range).Formula = "=IFERROR(sel_ultloss/ee*1000,0)"
         CType(rng.Columns(29), Range).Formula = "=If(age<=IC_spr_age,preIC_res/SUMIFS(preIC_res,age, ""<=""&IC_spr_age), 0)"
         CType(rng.Columns(30), Range).Formula = "=sel_volatility*preIC_res_spr"
         CType(rng.Columns(31), Range).Formula = "=preIC_ultloss-cur_paid"
         CType(rng.Columns(32), Range).Formula = "=cur_incurred-cur_paid"
         CType(rng.Columns(33), Range).Formula = "=sel_ultloss-cur_incurred"
         CType(rng.Columns(34), Range).Formula = "=sel_ultloss-cur_paid"
-        CType(rng.Columns(40), Range).Formula = "=preIC_ultloss/ult_counts*1000"
-        CType(rng.Columns(41), Range).Formula = "=preIC_ultloss/ee*1000"
-        CType(rng.Columns(42), Range).Formula = "=preIC_ultloss/ep"
+        CType(rng.Columns(40), Range).Formula = "=IFERROR(preIC_ultloss/ult_counts*1000,0)"
+        CType(rng.Columns(41), Range).Formula = "=IFERROR(preIC_ultloss/ee*1000,0)"
+        CType(rng.Columns(42), Range).Formula = "=IFERROR(preIC_ultloss/ep,0)"
         CType(rng.Columns(26), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =
             "=getTrend(IC_sev, eval_group)"
         CType(rng.Columns(28), Range).Offset(offsetRows, 0).Resize(rng.Rows.Count - offsetRows).FormulaArray =

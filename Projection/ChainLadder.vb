@@ -95,7 +95,12 @@ Public Module ChainLadder
 
         out = New Double(data.GetUpperBound(0) - indicator, 0) {}
         For i As Integer = 0 To out.GetUpperBound(0)
-            out(i, 0) = CType(data(i + indicator), Double) / CType(data(i), Double) - 1
+            'Set trend to 0 if denominator is 0.
+            If CType(data(i), Double) = 0 Then
+                out(i, 0) = 0
+            Else
+                out(i, 0) = CType(data(i + indicator), Double) / CType(data(i), Double) - 1
+            End If
         Next
         Return out
     End Function
@@ -238,6 +243,9 @@ Public Module ChainLadder
             'force ATA to 1 if it's less than 1
             If nextAge < thisAge Then
                 out(j) = 1
+                'if the current age column sum to 0, then cannot do division
+            ElseIf thisAge = 0 Then
+                out(j) = 1
             Else
                 out(j) = Decimal.Round(CType(nextAge / thisAge, Decimal), 4, MidpointRounding.AwayFromZero)
             End If
@@ -320,14 +328,23 @@ Public Module ChainLadder
                 xy = xy + CType(triangle(i, j), Double) * CType(triangle(i, j + 1), Double)
                 xSqr = xSqr + CType(triangle(i, j), Double) ^ 2
             Next
-            b = ((numPt - counter) * xy - x * y) / ((numPt - counter) * xSqr - x ^ 2)
-            a = (y / (numPt - counter)) - (b * (x / (numPt - counter)))
+
+            If (numPt - counter) * xSqr - x ^ 2 = 0 Then
+                b = 1
+                a = 0
+            Else
+                b = ((numPt - counter) * xy - x * y) / ((numPt - counter) * xSqr - x ^ 2)
+                a = (y / (numPt - counter)) - (b * (x / (numPt - counter)))
+            End If
+
             nextAge = b * CType(triangle(triangle.GetUpperBound(0) - j, j), Double) + a
 
             'boundary condition - set factor to 1
             If triangle.GetUpperBound(0) - j - 1 < 2 Then
                 out(j) = 1
             ElseIf nextAge < CType(triangle(triangle.GetUpperBound(0) - j, j), Double)
+                out(j) = 1
+            ElseIf CType(triangle(triangle.GetUpperBound(0) - j, j), Double) = 0
                 out(j) = 1
             Else
                 out(j) = Decimal.Round(
