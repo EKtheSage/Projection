@@ -64,9 +64,75 @@ Public Module PullData
             New coverageList With {.coverageName = "PIP", .coverageNum = "020"},
             New coverageList With {.coverageName = "XMC", .coverageNum = "XMC"},
             New coverageList With {.coverageName = "UIM", .coverageNum = "089"},
-            New coverageList With {.coverageName = "041", .coverageNum = "041"},
-            New coverageList With {.coverageName = "042", .coverageNum = "042"},
-            New coverageList With {.coverageName = "043", .coverageNum = "043"}
+            New coverageList With {.coverageName = "UM", .coverageNum = "005"},
+            New coverageList With {.coverageName = "T&L", .coverageNum = "006"},
+            New coverageList With {.coverageName = "PDMD", .coverageNum = "008"},
+            New coverageList With {.coverageName = "PE", .coverageNum = "009"},
+            New coverageList With {.coverageName = "IPIP", .coverageNum = "010"},
+            New coverageList With {.coverageName = "LBI", .coverageNum = "011"},
+            New coverageList With {.coverageName = "NOBI", .coverageNum = "012"},
+            New coverageList With {.coverageName = "UM EO", .coverageNum = "014"},
+            New coverageList With {.coverageName = "UIM EO", .coverageNum = "015"},
+            New coverageList With {.coverageName = "UM/UIM EO", .coverageNum = "016"},
+            New coverageList With {.coverageName = "LPD", .coverageNum = "017"},
+            New coverageList With {.coverageName = "LOI", .coverageNum = "018"},
+            New coverageList With {.coverageName = "SBI", .coverageNum = "019"},
+            New coverageList With {.coverageName = "UMPL", .coverageNum = "021"},
+            New coverageList With {.coverageName = "BIPDSL", .coverageNum = "022"},
+            New coverageList With {.coverageName = "BFC", .coverageNum = "023"},
+            New coverageList With {.coverageName = "UM/UIM PL", .coverageNum = "024"},
+            New coverageList With {.coverageName = "UIM PL", .coverageNum = "025"},
+            New coverageList With {.coverageName = "CB", .coverageNum = "026"},
+            New coverageList With {.coverageName = "UMSL", .coverageNum = "027"},
+            New coverageList With {.coverageName = "DTOP", .coverageNum = "028"},
+            New coverageList With {.coverageName = "LOU", .coverageNum = "029"},
+            New coverageList With {.coverageName = "MBEN", .coverageNum = "030"},
+            New coverageList With {.coverageName = "NOPD", .coverageNum = "031"},
+            New coverageList With {.coverageName = "NOPIP", .coverageNum = "032"},
+            New coverageList With {.coverageName = "NOCOLL", .coverageNum = "033"},
+            New coverageList With {.coverageName = "NOCOMP", .coverageNum = "034"},
+            New coverageList With {.coverageName = "UMPD RD", .coverageNum = "035"},
+            New coverageList With {.coverageName = "XUIMPL", .coverageNum = "036"},
+            New coverageList With {.coverageName = "DSCT", .coverageNum = "037"},
+            New coverageList With {.coverageName = "EPIP", .coverageNum = "038"},
+            New coverageList With {.coverageName = "PPI", .coverageNum = "039"},
+            New coverageList With {.coverageName = "BFTL", .coverageNum = "040"},
+            New coverageList With {.coverageName = "FUHP", .coverageNum = "041"},
+            New coverageList With {.coverageName = "MOPP", .coverageNum = "042"},
+            New coverageList With {.coverageName = "MOHP", .coverageNum = "043"},
+            New coverageList With {.coverageName = "EC", .coverageNum = "044"},
+            New coverageList With {.coverageName = "NEC", .coverageNum = "045"},
+            New coverageList With {.coverageName = "FUNRL", .coverageNum = "046"},
+            New coverageList With {.coverageName = "BFPP", .coverageNum = "047"},
+            New coverageList With {.coverageName = "ID", .coverageNum = "049"},
+            New coverageList With {.coverageName = "OBEL", .coverageNum = "050"},
+            New coverageList With {.coverageName = "PPO", .coverageNum = "051"},
+            New coverageList With {.coverageName = "XPPO", .coverageNum = "052"},
+            New coverageList With {.coverageName = "CMPT", .coverageNum = "053"},
+            New coverageList With {.coverageName = "CMPP", .coverageNum = "054"},
+            New coverageList With {.coverageName = "OBELMCO", .coverageNum = "055"},
+            New coverageList With {.coverageName = "COLT", .coverageNum = "057"},
+            New coverageList With {.coverageName = "L/C", .coverageNum = "058"},
+            New coverageList With {.coverageName = "PIPLR", .coverageNum = "059"},
+            New coverageList With {.coverageName = "COLP", .coverageNum = "060"},
+            New coverageList With {.coverageName = "REA", .coverageNum = "061"},
+            New coverageList With {.coverageName = "LTCT", .coverageNum = "062"},
+            New coverageList With {.coverageName = "LTCP", .coverageNum = "063"},
+            New coverageList With {.coverageName = "RVL", .coverageNum = "065"},
+            New coverageList With {.coverageName = "RPE", .coverageNum = "066"},
+            New coverageList With {.coverageName = "RMD", .coverageNum = "067"},
+            New coverageList With {.coverageName = "AD", .coverageNum = "068"},
+            New coverageList With {.coverageName = "UIMPD", .coverageNum = "069"},
+            New coverageList With {.coverageName = "UM GA", .coverageNum = "073"},
+            New coverageList With {.coverageName = "UM RD", .coverageNum = "074"},
+            New coverageList With {.coverageName = "UMPD GA", .coverageNum = "075"},
+            New coverageList With {.coverageName = "UMPD", .coverageNum = "078"},
+            New coverageList With {.coverageName = "RR", .coverageNum = "079"},
+            New coverageList With {.coverageName = "MBI", .coverageNum = "082"},
+            New coverageList With {.coverageName = "XUIM", .coverageNum = "083"},
+            New coverageList With {.coverageName = "MPIF", .coverageNum = "085"},
+            New coverageList With {.coverageName = "PPIF", .coverageNum = "086"},
+            New coverageList With {.coverageName = "SCLS", .coverageNum = "087"}
         }
     End Function
 
@@ -109,6 +175,8 @@ Public Module PullData
         cov = CType(addCovToList(), List(Of coverageList))
         lob = CType(addLobToList(), List(Of lobList))
 
+        'select the coverage name from the IEnumerables, the coverage name will be assigned
+        'to worksheet Control namedrange "coverage"
         Dim queryCov =
             From coverage In cov
             Where coverage.coverageNum = covNum
@@ -162,14 +230,6 @@ Public Module PullData
         Dim metric As String = ""
         Dim sqlString As String
         Dim oledbConn As OLEDBConnection
-
-        'coverageNum is for EPEE query, where coverage field is numeric, not string
-        cov = CType(addCovToList(), List(Of coverageList))
-
-        Dim queryCov =
-            From a In cov
-            Where a.coverageName = coverage
-            Select a.coverageNum
 
         For Each wkbkConn As WorkbookConnection In Application.ActiveWorkbook.Connections
             Select Case wkbkConn.Name
@@ -260,6 +320,16 @@ Public Module PullData
 
         covNum = CType(CType(wkstControl.PivotTables("PT_TriangleList1"), PivotTable) _
                         .RowRange.Offset(1, 0).Resize(1, 1).Value, String)
+
+
+        Dim coverageName As String = CType(wkstControl.Range("coverage").Value, String)
+        cov = CType(addCovToList(), List(Of coverageList))
+        Dim queryCov =
+            From coverages In cov
+            Where coverages.coverageName = coverageName
+            Select coverages.coverageNum
+
+        covNum = queryCov.ToList(0).ToString
         If covNum = "UMC" Then
             coverage = "&coverage=005024073074"
         ElseIf covNum = "XMC" Then

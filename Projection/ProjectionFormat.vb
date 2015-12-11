@@ -651,7 +651,7 @@ Public Module ProjectionFormat
                 CType(rng.Columns(22), Range).Formula =
                 "=If(YEAR(accident_date)<2007,ult_incurred,MAX(INDEX(cur_incurred,ROW()-1,1),INDEX(wtd_ultloss,ROW()-1,1)))"
             Else
-                'other wise use this formula (e.g., company projections)
+                'otherwise use this formula (e.g., company projections)
                 CType(rng.Columns(22), Range).Formula =
                 "=MAX(INDEX(cur_incurred,ROW()-1,1),INDEX(wtd_ultloss,ROW()-1,1))"
             End If
