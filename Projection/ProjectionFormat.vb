@@ -776,7 +776,10 @@ Public Module ProjectionFormat
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
         End If
     End Sub
-    Public Sub finalizeATA()
+
+    'Before going into PRP, update both initial and final ATA columns, so flag = 0
+    'During PRP, we're just going to update the final ATA column, so make flag = 1
+    Public Sub finalizeATA(flag As Integer)
         Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim row As Integer
         Dim dt As Date = Now
@@ -803,10 +806,13 @@ Public Module ProjectionFormat
         'assigns the newly created column of cells to review template
         CType(wkstReviewTemplate.Cells(9, 5), Range).Value = CType(wkstReviewTemplate.Cells(9, 6), Range).Value
         For i As Integer = 0 To 5
-            CType(wkstReviewTemplate.Cells(10 + i, 5), Range).Value = selATA(i, 0)
+            'only update the initial ATA column when flag is set to 0
+            If flag = 0 Then
+                CType(wkstReviewTemplate.Cells(10 + i, 5), Range).Value = selATA(i, 0)
+                CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
+            End If
             CType(wkstReviewTemplate.Cells(10 + i, 6), Range).Value = selATA(i, 0)
         Next
-        CType(wkstReviewTemplate.Cells(16, 5), Range).Value = CType(wkstReviewTemplate.Cells(16, 6), Range).Value
 
         'track changes on the review template
         row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 26), Range).End(XlDirection.xlUp).Row + 1
@@ -820,7 +826,7 @@ Public Module ProjectionFormat
             CType(Application.ActiveWorkbook.BuiltinDocumentProperties, DocumentProperties)("Last Author").Value
     End Sub
 
-    Public Sub finalizeExpLoss()
+    Public Sub finalizeExpLoss(flag As Integer)
         Dim counter As Integer
         Dim wkst2 As Worksheet = CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet)
         Dim age1 As Object
@@ -844,9 +850,14 @@ Public Module ProjectionFormat
             wkstReviewTemplate.Range("RT_SevTrnd").Value = wkstExpLoss.Range("P3").Value
             wkstReviewTemplate.Range("RT_PPTrnd").Value = wkstExpLoss.Range("P6").Value
             wkstReviewTemplate.Range("RT_LRTrnd").Value = wkstExpLoss.Range("P9").Value
-            wkstReviewTemplate.Range("E27").Value = wkstExpLoss.Range("P11").Value
             wkstReviewTemplate.Range("RT_ExpLossAge1").Value = wkstExpLoss.Range("P11").Value
-            wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
+
+            'when flag is 0 which means it's before PRP, update the initial Exp Loss
+            'when flag is 1, don't update
+            If flag = 0 Then
+                wkstReviewTemplate.Range("E27").Value = wkstExpLoss.Range("P11").Value
+                wkstReviewTemplate.Range("E28").Value = wkstReviewTemplate.Range("F28").Value
+            End If
 
             'track changes on Review Template
             row = CType(wkstReviewTemplate.Cells(wkstReviewTemplate.Rows.Count, 26), Range).End(XlDirection.xlUp).Row + 1
@@ -863,6 +874,7 @@ Public Module ProjectionFormat
             Exit Sub
         End If
     End Sub
+
     Public Sub runVBAHistory()
         Application.Run("History")
     End Sub
@@ -885,9 +897,14 @@ Public Module ProjectionFormat
         graphsUpdate("Review Template")
     End Sub
 
-    Public Sub inputReviewTemplate()
-        finalizeATA()
-        finalizeExpLoss()
+    Public Sub inputReviewTemplateBeforePRP()
+        finalizeATA(0)
+        finalizeExpLoss(0)
+    End Sub
+
+    Public Sub inputReviewTemplateDuringPRP()
+        finalizeATA(1)
+        finalizeExpLoss(1)
     End Sub
 
     Public Sub adjustGraphLineColors()

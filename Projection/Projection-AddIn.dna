@@ -89,12 +89,12 @@ say hide in the column header.'
                       onAction='RunTagMacro' tag='QPageFormat' />
             </group>
             <group id='TransferInitialSelectionGroup' label='Transfer Initial Selections'>
-              <button id='inputReviewTemplate' label='Update Review Template' size='large'
+              <button id='inputReviewTemplateBeforePRP' label='Update Review Template Before PRP' size='large'
                       imageMso ='AutoDial'
                       screentip='Update Review Template'
                       supertip='Click on this button to bring the first 6 ATA factors, 
 7-Ult ATU factor, selected Age 1 expected loss, trends, overall reserves to Review Template'
-                      onAction='RunTagMacro' tag='inputReviewTemplate' />
+                      onAction='RunTagMacro' tag='inputReviewTemplateBeforePRP' />
               <button id='printPRP' label='Print PDF for PRP' size='large'
                       imageMso ='FilePrintQuick'
                       screentip ='Print PDF for PRP'
@@ -102,6 +102,12 @@ say hide in the column header.'
                       onAction='RunTagMacro' tag='runVBAPrintPRP' />
             </group>
             <group id='UpdateReserves' label='Update Reserves'>
+            <button id='inputReviewTemplateDuringPRP' label='Update Review Template At PRP' size='large'
+                      imageMso ='AutoDial'
+                      screentip='Update Review Template'
+                      supertip='Update final ATA, trend, final EL values on Review Template, it does not
+change the initial selections you made before PRP.'
+                      onAction='RunTagMacro' tag='inputReviewTemplateDuringPRP' />
               <button id='transferToSQL' label='Update Reserves' size='large' 
                       imageMso ='AnimationGallery'
                       screentip ='Update Reserves'
