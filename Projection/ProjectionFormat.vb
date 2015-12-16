@@ -630,7 +630,7 @@ Public Module ProjectionFormat
                 "=If(percent_paid>(1/1.07), If(ult_paid>=cur_incurred, ""A"", ""H""), ""E"")"
         Else
             CType(rng.Columns(17), Range).Formula =
-                "=If(percent_incurred>(1/1.07), If(ult_incurred>=AVERAGE(ult_paid,ult_incurred), ""B"", ""G""), ""E"")"
+                "=If(percent_incurred>(1/1.07), ""B"", ""E"")"
         End If
 
         CType(rng.Columns(18), Range).Formula =
