@@ -72,6 +72,8 @@ Public Class TestRibbon
             Return My.Resources.Get_GU
         ElseIf control.Id = "getClosMod" Then
             Return My.Resources.Get_CM
+        ElseIf control.Id = "approve" Then
+            Return My.Resources.TheMasterChef
         Else
             Return 1
         End If

@@ -347,6 +347,26 @@ Public Module PullData
 
     End Sub
 
+    Public Sub runVBAHistory()
+        Application.Run("History")
+    End Sub
+
+    Public Sub runVBANewData()
+        Application.Run("NewData")
+    End Sub
+
+    Public Sub runVBAPrintPRP()
+        Application.Run("printPRP")
+    End Sub
+
+    Public Sub runVBAPrintVI()
+        Application.Run("printVI")
+    End Sub
+
+    Public Sub runVBAapprove()
+        Application.Run("approve")
+    End Sub
+
     Public Sub getGUIBNRCountVBA()
         Dim id As Integer
         id = CType(Application.Run("Info"), Integer)
