@@ -169,7 +169,6 @@
     <None Include="Resources\all triangle.png" />
     <None Include="Resources\monthly triangle.png" />
     <None Include="Resources\quarerly triangle.png" />
-    <None Include="Resources\MasterChef.png" />
     <None Include="Resources\TheMasterChef.png" />
     <Content Include="scratch work.txt" />
     <Content Include="Projection-AddIn.dna">
