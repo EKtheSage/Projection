@@ -120,7 +120,7 @@ it will update data on SQL Server and bring in the updated data into Q-page and 
                       supertip ='Click on this button to print PDFs to VI'
                       onAction='RunTagMacro' tag='runVBAPrintVI' />
               <button id='approve' label='Approve Reserves' size='large'
-                      imageMso ='customGetImage'
+                      getImage ='customGetImage'
                       screentip ='Approve Reserves'
                       supertip ='I am Kevin Magley and I approve this reserves.'
                       onAction='RunTagMacro' tag='runVBAapprove' />

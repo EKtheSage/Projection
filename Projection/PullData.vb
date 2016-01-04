@@ -147,11 +147,15 @@ Public Module PullData
 
     Public Sub getInitialTriangleList()
         'refresh the two pivot tables in the worksheet, then reset them to show all rows
-        Dim triangleConn As OLEDBConnection = Application.ActiveWorkbook.Connections("spTriangleList").OLEDBConnection
-
+        Dim triangleConn As OLEDBConnection = Application.ActiveWorkbook.Connections("TriangleList").OLEDBConnection
+        Dim sqlString As String
+        Dim snapDate As String = Chr(39) & CType(wkstControl.Range("CurrentEvalDate").Value, String) & Chr(39)
         Dim bgQuery As Boolean = triangleConn.BackgroundQuery
 
+
+        sqlString = "proj.sptriangleList @snap_date=" & snapDate
         triangleConn.BackgroundQuery = False
+        triangleConn.CommandText = sqlString
         triangleConn.Refresh()
         triangleConn.BackgroundQuery = bgQuery
 
