@@ -425,7 +425,9 @@ Public Module ProjectionFormat
             If evalGroup = "Monthly" Then
                 CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,2,0),0)"
             Else
-                CType(rng.Columns(9), Range).Offset(0, 1).Formula = "=IFERROR(VLOOKUP($A521,tbl_IBNRCount,4,0),0)"
+                CType(rng.Columns(9), Range).Offset(0, 1).Formula =
+                    "=IFERROR(INDEX(tbl_IBNRCount,MATCH($A521,tbl_IBNRCount[date],0), " &
+                    "MATCH(""IBNRCnt2"",tbl_IBNRCount[#Headers],0)),0)"
             End If
             CType(CType(rng.Columns(9), Range).Offset(0, 1).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
                 "=SUM(Count_GUIBNR)"
@@ -601,7 +603,7 @@ Public Module ProjectionFormat
         Else
             CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000"
             CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)/365"
-            CType(rng.Columns(20), Range).Formula = "=INDEX(tbl_clsmod,MATCH(age,age,0),tbl_closmod_column)/1000"
+            CType(rng.Columns(20), Range).Formula = "=IFERROR(INDEX(tbl_clsmod,MATCH(age,age,0),tbl_closmod_column)/1000,0)"
         End If
 
         CType(rng.Columns(5), Range).Formula = "=IFERROR(ep/ee*1000,0)"

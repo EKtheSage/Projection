@@ -318,6 +318,9 @@ Public Module PullData
             state = "&state=**NY"
         ElseIf CType(wkstControl.Range("state").Value, String) = "x4" Then
             state = "&state=**NYFLNJMI"
+        ElseIf CType(wkstControl.Range("state").Value, String) = "x3" And
+            CType(wkstControl.Range("coverage").Value, String) = "UIM" Then
+            state = "&state=**KSNVCT"
         Else
             state = "&state=" & CType(wkstControl.Range("state").Value, String)
         End If
