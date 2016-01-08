@@ -38,6 +38,7 @@ Public Module ProjectionFormat
     Public projBase As String = CType(wkstControl.Range("proj_base").Value, String)
     Public includeSS As String = CType(wkstControl.Range("include_ss").Value, String)
     Public coverageField As String = CType(wkstControl.Range("coverage").Value, String)
+    Public priorRes As Double = CType(CType(wkstData.ListObjects("BI_ind_res25").DataBodyRange.Cells(1, 2), Range).Value, Double)
 
     Enum namedRanges
         'this enum will allow us to do range resize, will need to change numbers 
@@ -417,7 +418,7 @@ Public Module ProjectionFormat
             CType(CType(rng.Columns(8), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
                 "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_defaultUlt))"
             CType(rng.Columns(9), Range).Formula =
-                "=IF(Count_GUIBNR = 0, Count_CurAmt-Count_Exclusion," &
+                "=IF(SUM(Count_GUIBNR) = 0, (Count_CurAmt-Count_Cap-Count_Exclusion)*Count_sel_ATU+Count_Cap," &
                     "Count_CurAmt-Count_Exclusion+Count_GUIBNR)"
             CType(CType(rng.Columns(9), Range).Cells(rowNum, 1), Range).Offset(1, 0).Formula =
             "=SUM(INDEX(" & shtName & "_Summary,,column_" & shtName & "_summary_selUlt))"
@@ -596,13 +597,13 @@ Public Module ProjectionFormat
         CType(rng.Columns(2), Range).Formula = "=Count!B521"
 
         If evalGroup = "Monthly" Then
-            CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000"
-            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee,column_ee,0)/365"
+            CType(rng.Columns(3), Range).Formula = "=IFERROR(VLOOKUP(accident_date,tbl_epee,column_ep,0)/1000,0)"
+            CType(rng.Columns(4), Range).Formula = "=IFERROR(VLOOKUP(accident_date,tbl_epee,column_ee,0)/365,0)"
             CType(rng.Columns(20), Range).Formula =
                 "=If(SUM(clos_mod_spr_monthly)=0, 0, INDEX(clos_mod_ult_monthly,MATCH($D2,age,0),1))"
         Else
-            CType(rng.Columns(3), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000"
-            CType(rng.Columns(4), Range).Formula = "=VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)/365"
+            CType(rng.Columns(3), Range).Formula = "=IFERROR(VLOOKUP(accident_date,tbl_epee_qtrly,column_ep,0)/1000,0)"
+            CType(rng.Columns(4), Range).Formula = "=IFERROR(VLOOKUP(accident_date,tbl_epee_qtrly,column_ee,0)/365,0)"
             CType(rng.Columns(20), Range).Formula = "=IFERROR(INDEX(tbl_clsmod,MATCH(age,age,0),tbl_closmod_column)/1000,0)"
         End If
 
@@ -753,13 +754,13 @@ Public Module ProjectionFormat
             'change paid ATU to prior ATU first, get the reserves using prior sel
             CType(summary.Columns(9), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_priorATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,))) + priorRes
             wkstReviewTemplate.Range("C16").Value = reserves
 
             'change paid ATU to default ATU, get the reserves with default sel
             CType(summary.Columns(9), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Paid_Summary,column_paid_summary_defaultATU,0),0)"
-            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
+            reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,))) + priorRes
             wkstReviewTemplate.Range("D16").Value = reserves
 
             'finally change paid ATU back to selected ATU
@@ -769,11 +770,11 @@ Public Module ProjectionFormat
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_priorATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
-            wkstReviewTemplate.Range("C16").Value = reserves
+            wkstReviewTemplate.Range("C16").Value = reserves + priorRes
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_defaultATU,0),0)"
             reserves = sumRange(CType(CType(summary.Columns(34), Range).Value, Object(,)))
-            wkstReviewTemplate.Range("D16").Value = reserves
+            wkstReviewTemplate.Range("D16").Value = reserves + priorRes
             CType(summary.Columns(12), Range).Formula =
                 "=IFERROR(1/VLOOKUP(accident_date,Incurred_Summary,column_incurred_summary_selATU,0),0)"
         End If
