@@ -405,6 +405,40 @@ Public Module ChainLadder
 
     Public Function seasonal(ByVal numPt As Integer, ByVal triangle(,) As Object) As Double()
         Dim out(triangle.GetUpperBound(1) - 1) As Double
+        Dim ATATri(triangle.GetUpperBound(0) - 1, triangle.GetUpperBound(1) - 1) As Double
+        Dim ATASum As Double
+        Dim n, counter As Integer
+        ATATri = ATA(triangle)
+
+
+        For j As Integer = 0 To ATATri.GetUpperBound(1)
+            ATASum = 0
+
+            If evalGroup = "Monthly" Then
+                counter = 12
+            Else
+                counter = 4
+            End If
+
+            n = 1
+            While n <= numPt And j <= (ATATri.GetUpperBound(0) - counter + 1)
+                If j > ATATri.GetUpperBound(0) - n * counter + 1 Then
+                    Exit While
+                Else
+                    ATASum = ATASum + ATATri(ATATri.GetUpperBound(0) - n * counter - j + 1, j)
+                    n += 1
+                End If
+            End While
+
+            ATASum = Decimal.Round(CType(ATASum, Decimal), 4, MidpointRounding.AwayFromZero)
+
+            'force ATA to 1 if it's less than or equal to number of items
+            If ATASum <= (n - 1) Then
+                out(j) = 1
+            Else
+                out(j) = Decimal.Round(CType(ATASum / (n - 1), Decimal), 4, MidpointRounding.AwayFromZero)
+            End If
+        Next
 
         Return out
     End Function
