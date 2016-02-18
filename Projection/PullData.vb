@@ -132,7 +132,9 @@ Public Module PullData
             New coverageList With {.coverageName = "XUIM", .coverageNum = "083"},
             New coverageList With {.coverageName = "MPIF", .coverageNum = "085"},
             New coverageList With {.coverageName = "PPIF", .coverageNum = "086"},
-            New coverageList With {.coverageName = "SCLS", .coverageNum = "087"}
+            New coverageList With {.coverageName = "SCLS", .coverageNum = "087"},
+            New coverageList With {.coverageName = "PIPA", .coverageNum = "PIPA"},
+            New coverageList With {.coverageName = "BIA", .coverageNum = "BIA"}
         }
     End Function
 
@@ -341,6 +343,10 @@ Public Module PullData
             coverage = "&coverage=005024073074"
         ElseIf covNum = "XMC" Then
             coverage = "&coverage=036083"
+        ElseIf covNum = "PIPA" Then
+            coverage = "&coverage=020086"
+        ElseIf covNum = "BIA" Then
+            coverage = "&coverage=001019"
         Else
             coverage = "&coverage=" & covNum
         End If
