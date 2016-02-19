@@ -99,7 +99,7 @@ Public Module ProjectionFormat
         makeTriangleSheets("Incurred")
 
 
-        'wait...if the alt data will be either the actual data or alt data, do we really have to do this part?
+        'wait...if the ata data will be either the actual data or ata data, do we really have to do this part?
         'yes we do, because we need the macro to produce quarterly data triangle
         monthToQuarterAlt("Incurred")
         monthToQuarterAlt("Paid")
@@ -189,17 +189,17 @@ Public Module ProjectionFormat
 
     Public Sub monthToQuarterAlt(data As String)
         Application.Calculation = XlCalculation.xlCalculationManual
-        Dim dataRng As String = "'Alt Data'!" & data & "_data_alt"
+        Dim dataRng As String = "'ATA Data'!" & data & "_data_alt"
 
         Dim sht2 As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, dataRng), ExcelReference)
         Dim selectVal As Object(,) = CType(sht2.GetValue(), Object(,))
         Dim qtrTri As Double(,) = quarterTriangle(selectVal)
 
-        dataRng = "'Alt Data'!" & data & "_qtrlydata_alt"
+        dataRng = "'ATA Data'!" & data & "_qtrlydata_alt"
         Dim target2 As ExcelReference = CType(XlCall.Excel(XlCall.xlfEvaluate, dataRng), ExcelReference)
         target2.SetValue(qtrTri)
 
-        'also assigns new formula to the ATA block - Alt data equals actual data if ATA selections are the same, no need to have if/else
+        'also assigns new formula to the ATA block - ATA data equals actual data if ATA selections are the same, no need to have if/else
         'actually no need to do this step
         'Dim wkst As Worksheet = CType(Application.ActiveWorkbook.Worksheets(data), Worksheet)
         'wkst.Range(data & "_ATA").FormulaArray = "=ATA(" & data & "_data_alt)"
