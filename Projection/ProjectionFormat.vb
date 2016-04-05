@@ -623,9 +623,11 @@ Public Module ProjectionFormat
         CType(rng.Columns(14), Range).End(XlDirection.xlDown).ClearContents()
 
         CType(rng.Columns(15), Range).Formula =
-            "=ultLoss(""E"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
+            "=ultLoss(""E"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0," &
+            "INDEX(Incurred_Cap,ROW(A1),1))"
         CType(rng.Columns(16), Range).Formula =
-            "=ultLoss(""S"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0)"
+            "=ultLoss(""S"",proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss,0," &
+            "INDEX(Incurred_Cap,ROW(A1),1))"
 
         'letter selection column needs to be updated based on Paid/Incurred, A or H and B or G
         If projBase = "Paid" Then
@@ -638,7 +640,7 @@ Public Module ProjectionFormat
 
         CType(rng.Columns(18), Range).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred," &
-            "ult_incurred,exp_loss,IFERROR(VLOOKUP(accident_date,tbl_expLoss,5,0),0))"
+            "ult_incurred,exp_loss,IFERROR(VLOOKUP(accident_date,tbl_expLoss,5,0),0),INDEX(Incurred_Cap,ROW(A1),1))"
         'age 1 exp loss doesn't use prior loss
         CType(rng.Columns(18), Range).End(XlDirection.xlDown).Formula =
             "=ultLoss(letter,proj_base,cur_paid,percent_paid,ult_paid,cur_incurred,percent_incurred,ult_incurred,exp_loss, 0)"
@@ -648,7 +650,7 @@ Public Module ProjectionFormat
         CType(rng.Columns(21), Range).Formula = "=clos_mod*clos_mod_weight+(1-clos_mod_weight)*IC_ultloss"
 
         'BI needs special formula
-        If coverageField = "BI" Then
+        If coverageField = "BI" Or coverageField = "BIA" Then
             'any risk projections use this formula
             If CType(wkstControl.Range("risk").Value, String) <> "ALL" Then
                 CType(rng.Columns(22), Range).Formula =

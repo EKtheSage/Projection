@@ -22,14 +22,14 @@ Public Module ChainLadder
     Public Function ultLoss(ByVal letter As String, ByVal projBase As String,
                             ByVal curPaid As Double, ByVal percPaid As Double, ByVal ultPaid As Double,
                             ByVal curInc As Double, ByVal percInc As Double, ByVal ultInc As Double,
-                            ByVal expLoss As Double, ByVal priorSel As Double) As Double
+                            ByVal expLoss As Double, ByVal priorSel As Double, ByVal lgloss As Double) As Double
         Dim bf, gb As Double
         If projBase = "Incurred" Then
-            bf = curInc + (1 - percInc) * expLoss
-            gb = curInc + (1 - percInc) * bf
+            bf = curInc + (1 - percInc) * expLoss + lgloss
+            gb = curInc + (1 - percInc) * bf + lgloss
         ElseIf projBase = "Paid" Then
-            bf = curPaid + (1 - percPaid) * expLoss
-            gb = curPaid + (1 - percPaid) * bf
+            bf = curPaid + (1 - percPaid) * expLoss + lgloss
+            gb = curPaid + (1 - percPaid) * bf + lgloss
         End If
 
         Select Case letter
@@ -48,7 +48,7 @@ Public Module ChainLadder
             Case "G"
                 ultLoss = Decimal.Round(CType((ultPaid + ultInc) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "H"
-                ultLoss = Decimal.Round(CType(curInc, Decimal), 6, MidpointRounding.AwayFromZero)
+                ultLoss = Decimal.Round(CType((curInc + lgloss), Decimal), 6, MidpointRounding.AwayFromZero)
             Case "I"
                 ultLoss = Decimal.Round(CType((priorSel + ultPaid) / 2, Decimal), 6, MidpointRounding.AwayFromZero)
             Case "J"
