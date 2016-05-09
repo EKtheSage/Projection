@@ -34,11 +34,8 @@ Public Module ProjectionFormat
     Public wkstIBNRCnt As Worksheet = CType(Application.ActiveWorkbook.Worksheets("GU IBNR Count"), Worksheet)
     Public wkstClsdAvg As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Closed Avg"), Worksheet)
     Public wkstClsMod As Worksheet = CType(Application.ActiveWorkbook.Worksheets("Closure Model"), Worksheet)
-    Public evalGroup As String = CType(wkstControl.Range("eval_group").Value, String)
-    Public projBase As String = CType(wkstControl.Range("proj_base").Value, String)
-    Public includeSS As String = CType(wkstControl.Range("include_ss").Value, String)
-    Public coverageField As String = CType(wkstControl.Range("coverage").Value, String)
-    Public priorRes As Double = CType(CType(wkstData.ListObjects("BI_ind_res25").DataBodyRange.Cells(1, 2), Range).Value, Double)
+    Public projBase, evalGroup, includeSS, coverageField As String
+    Public priorRes As Double
 
     Enum namedRanges
         'this enum will allow us to do range resize, will need to change numbers 
@@ -85,7 +82,8 @@ Public Module ProjectionFormat
     End Enum
 
     Public Sub setup()
-
+        'set priorRes after prior data is updated
+        priorRes = CType(CType(wkstData.ListObjects("BI_ind_res25").DataBodyRange.Cells(1, 2), Range).Value, Double)
         'turn off calculation until everything is setup
         Application.Calculation = XlCalculation.xlCalculationManual
 
@@ -120,7 +118,7 @@ Public Module ProjectionFormat
 
         'remove closure model monthly spread first. need to think about quarterly spread...
         wkstClsMod.Range("clos_mod_spr_monthly").ClearContents()
-        CType(Application.Worksheets(projBase), Worksheet).Activate()
+        CType(Application.ActiveWorkbook.Worksheets(projBase), Worksheet).Activate()
 
     End Sub
 

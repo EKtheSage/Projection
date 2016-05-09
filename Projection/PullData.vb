@@ -177,6 +177,20 @@ Public Module PullData
         Dim covNum As String = CType(rngData.Offset(1, 0).Resize(1, 1).Value, String)
         Dim lobNum As String = CType(rngData.Offset(1, 4).Resize(1, 1).Value, String)
 
+        'When we click on Step2 button, we will make sure we're using the activework book's values
+        wkstControl = CType(Application.ActiveWorkbook.Worksheets("Control"), Worksheet)
+        wkstConstants = CType(Application.ActiveWorkbook.Worksheets("Constants"), Worksheet)
+        wkstCount = CType(Application.ActiveWorkbook.Worksheets("Count"), Worksheet)
+        wkstPaid = CType(Application.ActiveWorkbook.Worksheets("Paid"), Worksheet)
+        wkstIncurred = CType(Application.ActiveWorkbook.Worksheets("Incurred"), Worksheet)
+        wkstExpLoss = CType(Application.ActiveWorkbook.Worksheets("Exp Loss"), Worksheet)
+        wkstSummary = CType(Application.ActiveWorkbook.Worksheets("Summary"), Worksheet)
+        wkstQPage = CType(Application.ActiveWorkbook.Worksheets("Q Page"), Worksheet)
+        wkstReviewTemplate = CType(Application.ActiveWorkbook.Worksheets("Review Template"), Worksheet)
+        wkstData = CType(Application.ActiveWorkbook.Worksheets("Data"), Worksheet)
+        wkstIBNRCnt = CType(Application.ActiveWorkbook.Worksheets("GU IBNR Count"), Worksheet)
+        wkstClsdAvg = CType(Application.ActiveWorkbook.Worksheets("Closed Avg"), Worksheet)
+        wkstClsMod = CType(Application.ActiveWorkbook.Worksheets("Closure Model"), Worksheet)
         'simple LINQ query on IEnumerables (fun fun fun)
         cov = CType(addCovToList(), List(Of coverageList))
         lob = CType(addLobToList(), List(Of lobList))
@@ -214,8 +228,13 @@ Public Module PullData
             wkstControl.Range("ATA_company").Value = rngATA.Offset(1, 2).Resize(1, 1).Value
             wkstControl.Range("ATA_state").Value = rngATA.Offset(1, 3).Resize(1, 1).Value
         End If
+
+        'Set calculation to automatic to make sure the variables below are updated
+        Application.Calculation = XlCalculation.xlCalculationAutomatic
+
         projBase = CType(wkstControl.Range("proj_base").Value, String)
         evalGroup = CType(wkstControl.Range("eval_group").Value, String)
+        includeSS = CType(wkstControl.Range("include_ss").Value, String)
         coverageField = CType(wkstControl.Range("coverage").Value, String)
 
         'also resets the default ata formula to this
