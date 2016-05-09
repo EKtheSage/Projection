@@ -170,6 +170,9 @@ Public Module PullData
         assignValueToControlSheet()
     End Sub
     Public Sub assignValueToControlSheet()
+        'When we click on Step2 button, we will make sure we're using the activework book's values
+        wkstControl = CType(Application.ActiveWorkbook.Worksheets("Control"), Worksheet)
+
         Dim ptData As PivotTable = CType(wkstControl.PivotTables("PT_TriangleList1"), PivotTable)
         Dim ptATA As PivotTable = CType(wkstControl.PivotTables("PT_TriangleList2"), PivotTable)
         Dim rngData As Range = ptData.RowRange
@@ -178,7 +181,6 @@ Public Module PullData
         Dim lobNum As String = CType(rngData.Offset(1, 4).Resize(1, 1).Value, String)
 
         'When we click on Step2 button, we will make sure we're using the activework book's values
-        wkstControl = CType(Application.ActiveWorkbook.Worksheets("Control"), Worksheet)
         wkstConstants = CType(Application.ActiveWorkbook.Worksheets("Constants"), Worksheet)
         wkstCount = CType(Application.ActiveWorkbook.Worksheets("Count"), Worksheet)
         wkstPaid = CType(Application.ActiveWorkbook.Worksheets("Paid"), Worksheet)
